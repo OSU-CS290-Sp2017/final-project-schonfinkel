@@ -25,6 +25,7 @@ function unescapeHtmlEntities(str) {
     );
 }
 
+/*
 const htmlEscapes =
     [ [/&/g, "&amp;"]
     , [/>/g, "&gt;"]
@@ -38,6 +39,7 @@ function escapeHtmlEntities(str) {
         str
     );
 }
+*/
 
 const tripleTickRe = /```[a-z]+/g;
 const codeBlockRe = /```[\s\S]+?```/g;
