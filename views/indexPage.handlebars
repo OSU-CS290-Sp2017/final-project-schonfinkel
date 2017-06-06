@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  {{> head}}
+
+  <body onload="smartquotes();">
+    <div class="container">
+      {{> topRow}}
+
+      <div class="row">
+        <div class="col-md-6">
+          <p>
+            <strong>Schönfinkel</strong> is a
+            <a href="https://en.wikipedia.org/wiki/Purely_functional_programming" target="_blank">pure functional</a>,
+            <a href="https://en.wikipedia.org/wiki/Type_system#STATIC" target="_blank">statically typed</a> (with full
+            <a href="https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system" target="_blank">type inference</a>),
+            <a href="https://en.wikipedia.org/wiki/Lazy_evaluation" target="_blank">non-strictly</a> evaluated
+            <a href="https://en.wikipedia.org/wiki/Code_golf" target="_blank">golfing language</a>.
+          </p>
+
+          <p>
+            Acting like a golfed "bridge" to
+            <a href="https://www.haskell.org/" target="_blank">the Haskell language</a>,
+            Schönfinkel offers all of the most useful semantics and utilities
+            that users of statically-typed "ML-family" languages such as
+            <a href="https://ocaml.org/" target="_blank">OCaml</a>, Haskell,
+            <a href="http://fsharp.org/" target="_blank">F#</a>, and
+            <a href="https://www.idris-lang.org/" target="_blank">Idris</a> are used to, but
+            without the (very pretty) syntax bloat that makes golfing clumsy and
+            uncompetitive.
+          </p>
+
+          <p>
+            This is accomplished by, among other things, a <a href="#">custom
+            codepage</a>, more stringent <a href="#">rules for identifiers</a>,
+            custom shortened versions of <a href="#">syntactic constructs</a>,
+            and <a href="#">lots of built-ins</a>.
+          </p>
+
+          <div class="alert alert-info" role="alert">
+            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>&nbsp;
+            Schönfinkel is under active development and is by no means a finished
+            product. As such, expect features to appear and disappear or even
+            changes in semantics to occur without prior notice.
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          {{#each codeSnippets}}
+    {{> codeExample}}
+            <hr />
+          {{/each}}
+        </div>
+      </div>
+
+      {{> footer}}
+    </div>
+
+    {{> jsFooter}}
+  </body>
+</html>

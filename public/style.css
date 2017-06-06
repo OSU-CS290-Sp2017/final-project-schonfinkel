@@ -1,0 +1,177 @@
+body {
+    font-family: "Source Sans Pro", sans-serif !important;
+}
+
+.navbar-left img {
+    width: 100%;
+    height: auto;
+}
+
+@media (max-width: 992px) {
+    .navbar-left img {
+        width: 75%;
+        height: auto;
+        float: none;
+    }
+}
+
+.nav-item:hover {
+    background-color: rgba(212, 212, 212, 0.25);
+}
+
+a {
+    color: #5C7CA7;
+}
+
+.snippet-pre {
+    background-color: rgba(192, 192, 192, 0.2);
+}
+
+pre {
+    white-space: pre !important;
+}
+
+.text-muted {
+    font-weight: lighter;
+}
+
+#menu-toggle {
+    position: fixed;
+    width: 125px;
+    height: 100px;
+    bottom: 0px;
+    left: 0px;
+    text-decoration: none;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 75px;
+    background-color: rgba(92, 124, 167, 0.75);
+    color: #fff;
+    font-size: 3em;
+    border-radius: 0 8px 0 0;
+    z-index: 1012;
+}
+
+/**************** Code highlighting ****************/
+
+.charLiteral {
+    color: rgb(172, 159, 48);
+}
+
+.strLiteral {
+    color: rgb(105, 95, 25);
+}
+
+.blockComment {
+    color: rgba(98, 98, 98, 0.6);
+    font-style: italic;
+}
+
+.lineComment {
+    color: rgba(98, 98, 98, 0.6);
+    font-style: italic;
+}
+
+.rightArr {
+    color: rgb(78, 0, 0);
+}
+
+.leftArr {
+    color: rgb(81, 16, 16);
+}
+
+.do_ {
+    color: rgb(115, 48, 68);
+}
+
+.doubleDots {
+    color: rgb(42, 42, 42);
+}
+
+.numericLiteral {
+    color: rgb(16, 97, 132);
+}
+
+.eqBinding {
+    color: rgb(64, 64, 64);
+}
+
+.semicolon {
+    color: rgb(0, 0, 0);
+}
+
+.backtick {
+    color: rgb(28, 72, 28);
+}
+
+.leftParen {
+    color: rgb(145, 85, 32);
+}
+
+.rightParen {
+    color: rgb(145, 85, 32);
+}
+
+.leftCurBracket {
+    color: rgb(24, 145, 54);
+}
+
+.rightCurBracket {
+    color: rgb(24, 145, 54);
+}
+
+.leftSqBracket {
+    color: rgb(46, 46, 128);
+}
+
+.rightSqBracket {
+    color: rgb(46, 46, 128);
+}
+
+.leftAngBracket {
+    color: rgb(82, 98, 55);
+}
+
+.rightAngBracket {
+    color: rgb(82, 98, 55);
+}
+
+.comma {
+    color: rgb(8, 8, 8);
+}
+
+.asAt {
+    color: rgb(118, 18, 232);
+}
+
+.vert {
+    color: rgb(118, 84, 242);
+}
+
+.brokenVert {
+    color: rgb(10, 182, 164);
+}
+
+.unaryMinus {
+    color: rgb(16, 97, 132);
+}
+
+.underscore {
+    color: rgb(105, 48, 72);
+}
+
+.specialFn {
+    color: rgb(155, 0, 132);
+}
+
+.infixFn {
+    color: rgb(87, 82, 150);
+}
+
+.upperId {
+    color: rgb(98, 38, 140);
+}
+
+.lowerId {
+    color: rgb(74, 150, 100);
+}

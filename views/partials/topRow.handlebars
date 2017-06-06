@@ -1,0 +1,42 @@
+<div class="row">
+  {{#if miniTopRow}}
+    <div class="col-md-3">
+    </div>
+  {{/if}}
+
+  {{#if miniTopRow}}
+    <div class="col-md-9">
+  {{else}}
+    <div class="col-md-12">
+  {{/if}}
+    <nav class="navbar navbar-toggleable-md navbar-light">
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      {{#if miniTopRow}}
+        <a href="/" class="navbar-left"><img class="img-fluid" src="/sch-trans-320.png" alt="Schönfinkel logo"></a>
+      {{else}}
+        <a href="/" class="navbar-left"><img class="img-fluid" src="/sch-trans-640.png" alt="Schönfinkel logo"></a>
+      {{/if}}
+
+      <a href="/" class="navbar-brand"><strong>Schönfinkel</strong><br /><span class="text-muted">Golfing with purity</span></a>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/docs">&nbsp;<i class="fa fa-book" aria-hidden="true" style="display: inline-block; width: 20px;"></i>&nbsp;Documentation</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="#">&nbsp;<i class="fa fa-keyboard-o" aria-hidden="true" style="display: inline-block; width: 20px;"></i>&nbsp;Try now</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/AugmentedFifth/schonfinkel" target="_blank">&nbsp;<i class="fa fa-code-fork" aria-hidden="true" style="display: inline-block; width: 20px;"></i>&nbsp;Source</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</div>

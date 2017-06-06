@@ -1,0 +1,23 @@
+{
+    "curly": true,
+    "eqeqeq": true,
+    "esversion": 6,
+    "futurehostile": true,
+    "globals": {
+        "console": false,
+        "require": false,
+        "process": false,
+        "__dirname": false,
+        "module": false
+    },
+    "latedef": "nofunc",
+    "laxcomma": true,
+    "noarg": true,
+    "nocomma": true,
+    "nonbsp": true,
+    "nonew": true,
+    "singleGroups": true,
+    "strict": "global",
+    "unused": true,
+    "varstmt": true
+}
