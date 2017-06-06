@@ -11,9 +11,11 @@ Schönfinkel acts as a golfed
 ["bridge"](https://en.wikipedia.org/wiki/Source-to-source_compiler) to the
 [Haskell](https://www.haskell.org/) language.
 
+!!!info!!!
 Schönfinkel is under active development and is by no means a finished product;
 as such, expect features to appear and disappear or even changes in semantics
 to occur without prior notice.
+!!!/info!!!
 
 Essentially all Schönfinkel code constructs map directly to Haskell
 counterparts. Schönfinkel does, however, define alternate syntax for many

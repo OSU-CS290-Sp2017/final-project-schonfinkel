@@ -12,11 +12,20 @@ const app = express();
 const port = +process.env.PORT ? +process.env.PORT : 3000;
 
 const htmlEntities =
-    [ [/&amp;/g,  "&"]
-    , [/&gt;/g,   ">"]
-    , [/&lt;/g,   "<"]
-    , [/&quot;/g, '"']
-    , [/&#39;/g,  "'"]
+    [ [/&lt;/g   , "<"]
+    , [/&gt;/g   , ">"]
+    , [/&amp;/g  , "&"]
+    , [/&quot;/g , '"']
+    , [/&apos;/g , "'"]
+    , [/&cent;/g , "¢"]
+    , [/&pound;/g, "£"]
+    , [/&#60;/g  , "<"]
+    , [/&#62;/g  , ">"]
+    , [/&#38;/g  , "&"]
+    , [/&#34;/g  , '"']
+    , [/&#39;/g  , "'"]
+    , [/&#162;/g , "¢"]
+    , [/&#163;/g , "£"]
     ];
 function unescapeHtmlEntities(str) {
     return htmlEntities.reduce(
@@ -25,26 +34,12 @@ function unescapeHtmlEntities(str) {
     );
 }
 
-/*
-const htmlEscapes =
-    [ [/&/g, "&amp;"]
-    , [/>/g, "&gt;"]
-    , [/</g, "&lt;"]
-    , [/"/g, "&quot;"]
-    , [/'/g, "&#39;"]
-    ];
-function escapeHtmlEntities(str) {
-    return htmlEscapes.reduce(
-        (accu, ent) => accu.replace(ent[0], ent[1]),
-        str
-    );
-}
-*/
-
 const tripleTickRe = /```[a-z]+/g;
 const codeBlockRe = /```[\s\S]+?```/g;
+const linkRe = /<a href="(.+?)">(.+?)<\/a>/g;
 const startPreRe = /\?pre/g;
 const endPreRe = /!pre/g;
+const brokenMdParserFix = /<p>\?pre<code><\/code>`([\s\S]+?)<code><\/code>`!pre<\/p>/g;
 const codeRe = /<code>([\s\S]+?)<\/code>/g;
 const allLineStarts = /^/gm;
 const readmeContent =
@@ -64,12 +59,29 @@ function highlightCodeBlock(match, p1) {
     }
 }
 
+const pTagRe = /<\/?p>/g;
+function brokenMdParserRepl(match, p1) {
+    return "<p>?pre<code>" + p1.replace(pTagRe, "") + "</code>!pre</p>";
+}
+
 let readmeHtml =
     markdown
         .toHTML(readmeContent)
+        .replace(brokenMdParserFix, brokenMdParserRepl)
+        .replace(codeRe, highlightCodeBlock)
+        .replace(linkRe, '<a href="$1" target="_blank">$2</a>')
         .replace(startPreRe, '<pre class="snippet-pre">')
         .replace(endPreRe, "</pre>")
-        .replace(codeRe, highlightCodeBlock);
+        .replace("<h1>Schönfinkel</h1>", "");
+
+const bootstrapRepls =
+    [ [/!!!info!!!([\s\S]+?)!!!\/info!!!/g, '<div class="alert alert-info" role="alert">$1</div>']
+    ];
+
+readmeHtml = bootstrapRepls.reduce(
+    (accu, repl) => accu.replace(repl[0], repl[1]),
+    readmeHtml
+);
 
 const docContents = (() => {
     const dc = [];
@@ -100,6 +112,7 @@ const docContents = (() => {
     return dc;
 })();
 const docHeaders = docContents.map(dc => dc[0]).slice(1);
+
 
 const codeSnippetSelection = [
     "[|i>j→-2|i<j→1|→0¦(i,j)←b]\n-- :: Integral i => [(i, i)] -> [i]",
