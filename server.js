@@ -11,8 +11,63 @@ const path          = require("path");
 const app = express();
 const port = +process.env.PORT ? +process.env.PORT : 3000;
 
+const htmlEntities =
+    [ [/&amp;/g,  "&"]
+    , [/&gt;/g,   ">"]
+    , [/&lt;/g,   "<"]
+    , [/&quot;/g, '"']
+    , [/&#39;/g,  "'"]
+    ];
+function unescapeHtmlEntities(str) {
+    return htmlEntities.reduce(
+        (accu, ent) => accu.replace(ent[0], ent[1]),
+        str
+    );
+}
+
+const htmlEscapes =
+    [ [/&/g, "&amp;"]
+    , [/>/g, "&gt;"]
+    , [/</g, "&lt;"]
+    , [/"/g, "&quot;"]
+    , [/'/g, "&#39;"]
+    ];
+function escapeHtmlEntities(str) {
+    return htmlEscapes.reduce(
+        (accu, ent) => accu.replace(ent[0], ent[1]),
+        str
+    );
+}
+
+const tripleTickRe = /```[a-z]+/g;
+const codeBlockRe = /```[\s\S]+?```/g;
+const startPreRe = /\?pre/g;
+const endPreRe = /!pre/g;
+const codeRe = /<code>([\s\S]+?)<\/code>/g;
+const allLineStarts = /^/gm;
+const readmeContent =
+    fs.readFileSync("./public/README.md", "utf8")
+      .replace(tripleTickRe, "```")
+      .replace(codeBlockRe, "?pre$&!pre");
+
+function highlightCodeBlock(match, p1) {
+    try {
+        const highlighted =
+            "<code>" +
+            codeHighlight.parse(unescapeHtmlEntities(p1)) +
+            "</code>";
+        return highlighted.replace(allLineStarts, "    ");
+    } catch (e) {
+        return match.replace(allLineStarts, "    ");
+    }
+}
+
 let readmeHtml =
-    markdown.toHTML(fs.readFileSync("./public/README.md", "utf8"));
+    markdown
+        .toHTML(readmeContent)
+        .replace(startPreRe, '<pre class="snippet-pre">')
+        .replace(endPreRe, "</pre>")
+        .replace(codeRe, highlightCodeBlock);
 
 const docContents = (() => {
     const dc = [];

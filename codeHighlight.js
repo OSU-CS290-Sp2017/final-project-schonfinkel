@@ -3,7 +3,7 @@
 
 /* Ordered by precedence */
 const lineFeed = /^\n+/;
-const charLiteral = /^'[^\n]'/;
+const charLiteral = /^'\\?[^\n]'/;
 const strLiteral = /^"[^\n]*?"/;
 const blockComment = /^{-.*?-}/;
 const lineComment = /^--[^\n]*/;
