@@ -35,25 +35,6 @@ pre {
     font-weight: lighter;
 }
 
-/*
-#menu-toggle {
-    position: fixed;
-    width: 125px;
-    height: 100px;
-    bottom: 0px;
-    left: 0px;
-    text-decoration: none;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 75px;
-    background-color: rgba(92, 124, 167, 0.75);
-    color: #fff;
-    font-size: 3em;
-    border-radius: 0 8px 0 0;
-    z-index: 1012;
-}
-*/
-
 #editor-area {
     font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     width: 100%;
@@ -70,6 +51,8 @@ pre {
 
 .char-pad-button {
     width: 100% !important;
+    font-size: 20px;
+    padding: 6px;
 }
 
 #highlighting-preview-pre {
@@ -98,6 +81,10 @@ pre {
 
 #byte-count {
     color: rgb(92, 124, 167);
+}
+
+.nav-button {
+    margin: 6px 0 6px 0;
 }
 
 /**************** Code highlighting ****************/

@@ -53,38 +53,38 @@ var infixFn = /^(\^≫|≫|≫=|≫>|≫\^|\^≪|≪<|≪\^|=≪|⌊|⌊\^|⌊#|
 var upperId = /^[A-Z]+/;
 var lowerId = /^[a-z]+/;
 var tokenTypes =
-    { lineFeed
-    , charLiteral
-    , strLiteral
-    , blockComment
-    , lineComment
-    , spacing
-    , rightArr
-    , leftArr
-    , do_
-    , doubleDots
-    , numericLiteral
-    , eqBinding
-    , semicolon
-    , backtick
-    , leftParen
-    , rightParen
-    , leftCurBracket
-    , rightCurBracket
-    , leftSqBracket
-    , rightSqBracket
-    , leftAngBracket
-    , rightAngBracket
-    , comma
-    , asAt
-    , vert
-    , brokenVert
-    , unaryMinus
-    , underscore
-    , specialFn
-    , infixFn
-    , upperId
-    , lowerId
+    { lineFeed: lineFeed
+    , charLiteral: charLiteral
+    , strLiteral: strLiteral
+    , blockComment: blockComment
+    , lineComment: lineComment
+    , spacing: spacing
+    , rightArr: rightArr
+    , leftArr: leftArr
+    , do_: do_
+    , doubleDots: doubleDots
+    , numericLiteral: numericLiteral
+    , eqBinding: eqBinding
+    , semicolon: semicolon
+    , backtick: backtick
+    , leftParen: leftParen
+    , rightParen: rightParen
+    , leftCurBracket: leftCurBracket
+    , rightCurBracket: rightCurBracket
+    , leftSqBracket: leftSqBracket
+    , rightSqBracket: rightSqBracket
+    , leftAngBracket: leftAngBracket
+    , rightAngBracket: rightAngBracket
+    , comma: comma
+    , asAt: asAt
+    , vert: vert
+    , brokenVert: brokenVert
+    , unaryMinus: unaryMinus
+    , underscore: underscore
+    , specialFn: specialFn
+    , infixFn: infixFn
+    , upperId: upperId
+    , lowerId: lowerId
     };
 
 

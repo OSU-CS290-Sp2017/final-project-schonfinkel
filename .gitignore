@@ -89,3 +89,5 @@ typings/
 *.7z
 *.rar
 null/
+.vscode/
+

@@ -1,6 +1,6 @@
 <div class="row" style="padding-bottom: 20px;">
-  <div class="col-md-2">
-    <a href="#menu-toggle" class="menu-toggle btn btn-primary btn-block" role="button">
+  <div class="col-md-3">
+    <a href="#menu-toggle" class="menu-toggle btn btn-primary btn-block nav-button" role="button">
       <i class="fa fa-bars" aria-hidden="true"></i>
       &nbsp;&nbsp;Docs navigator
     </a>
@@ -11,20 +11,17 @@
 
   <div class="col-md-3">
     {{#with prev}}
-      <a href="/docs/{{docIndex}}" class="btn btn-secondary btn-block" role="button">
+      <a href="/docs/{{docIndex}}" class="btn btn-secondary btn-block nav-button" role="button">
         <i class="fa fa-caret-left" aria-hidden="true"></i>
         &nbsp;&nbsp;{{title}}
       </a>
     {{/with}}
   </div>
 
-  <div class="col-md-1">
-  </div>
-
   <div class="col-md-3">
     {{#with next}}
       {{#if title}}
-        <a href="/docs/{{docIndex}}" class="btn btn-primary btn-block" role="button">
+        <a href="/docs/{{docIndex}}" class="btn btn-primary btn-block nav-button" role="button">
           {{title}}&nbsp;&nbsp;
           <i class="fa fa-caret-right" aria-hidden="true"></i>
         </a>
