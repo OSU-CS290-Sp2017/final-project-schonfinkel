@@ -98,7 +98,7 @@ inserted just before that, yielding an interpretation of
 ```
 
 (N.B.: The above snippet isn't actually valid Schönfinkel since it would be
-trying to make the list into an infix function.) This is the same thing:
+trying to make the list literal into an infix function.) This is the same thing:
 
 ```haskell
 y=["one","two","three","four"]

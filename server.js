@@ -76,6 +76,7 @@ let readmeHtml =
 
 const bootstrapRepls =
     [ [/!!!info!!!([\s\S]+?)!!!\/info!!!/g, '<div class="alert alert-info" role="alert">$1</div>']
+    , [/!!!hide!!!([\s\S]+?)!!!\/hide!!!/g, "$1"]
     ];
 
 readmeHtml = bootstrapRepls.reduce(
@@ -149,13 +150,21 @@ app.get("/docs", (req, res) => {
         docHeaders: docHeaders.map((h, i) => {
             return { title: h, active: false, docIndex: i + 1 };
         }),
-        docContent: docContents[active][1]
+        docContent: docContents[active][1],
+        prev: {
+            title: "Schönfinkel Documentation",
+            docIndex: 0
+        },
+        next: {
+            title: docHeaders[active],
+            docIndex: 2
+        }
     });
 });
 
 app.get("/docs/*", (req, res) => {
     const active = +req.url.split("/").filter(s => s).pop();
-    if (active >= docContents.length) {
+    if (active < 0 || active >= docContents.length) {
         res.status(404).render("404Page");
         return;
     }
@@ -165,7 +174,19 @@ app.get("/docs/*", (req, res) => {
         docHeaders: docHeaders.map((h, i) => {
             return { title: h, active: i + 1 === active, docIndex: i + 1 };
         }),
-        docContent: docContents[active][1]
+        docContent: docContents[active][1],
+        prev: {
+            title: active > 1 ?
+                docHeaders[active - 2] :
+                "Schönfinkel Documentation",
+            docIndex: Math.max(active - 1, 0)
+        },
+        next: {
+            title: docHeaders.length > active ?
+                docHeaders[active] :
+                "",
+            docIndex: active + 1
+        }
     });
 });
 
