@@ -31,6 +31,18 @@
           {{> exoticCharPad}}
         </div>
       </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h1 class="text-center">Output</h1>
+        </div>
+      </div>
+
+      <div class="row">
+        <div id="output-container" class="taller-container">
+          <pre id="output-pre"><code id="output"></code></pre>
+        </div>
+      </div>
     </div>
 
     {{> footer}}
@@ -38,6 +50,7 @@
     {{> jsFooter}}
 
     <script src="/code-preview.js"></script>
+    <script src="/sch.js"></script>
 
     <script>
     function insertAtCursor(field, val) {
@@ -76,6 +89,24 @@
         ev.preventDefault();
 
         $("#highlighting-preview-container").toggleClass("hide");
+    });
+
+    $("#compile-button").click(function(ev) {
+        ev.preventDefault();
+
+        var outputc = document.getElementById("output");
+        var output = "";
+
+        try {
+            output = schtohs.compile(document.getElementById("editor-area").value);
+        } catch (err) {
+            output = "" + err;
+        }
+
+        outputc.innerHTML = "";
+        outputc.appendChild(document.createTextNode(output));
+
+        //$("#output-container").removeClass("hide");
     });
     </script>
   </body>

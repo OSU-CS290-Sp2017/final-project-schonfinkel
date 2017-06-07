@@ -55,12 +55,13 @@ pre {
     padding: 6px;
 }
 
-#highlighting-preview-pre {
+#highlighting-preview-pre, #output-pre {
     margin: 12px;
     font-size: 16px;
 }
 
-#highlighting-preview-container {
+#highlighting-preview-container, #output-container {
+    width: 100%;
     margin-top: -3px;
     margin-bottom: 15px;
     background-color: rgba(192, 192, 192, 0.2);
@@ -69,7 +70,7 @@ pre {
     overflow: auto;
 }
 
-#highlighting-preview-toggle {
+.button-below-pad {
     margin-top: 10px;
     overflow-wrap: break-word;
     white-space: normal;
@@ -85,6 +86,10 @@ pre {
 
 .nav-button {
     margin: 6px 0 6px 0;
+}
+
+.taller-container {
+    min-height: 150px;
 }
 
 /**************** Code highlighting ****************/

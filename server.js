@@ -12,20 +12,20 @@ const app = express();
 const port = +process.env.PORT ? +process.env.PORT : 3000;
 
 const htmlEntities =
-    [ [/&lt;/g   , "<"]
-    , [/&gt;/g   , ">"]
-    , [/&amp;/g  , "&"]
-    , [/&quot;/g , '"']
-    , [/&apos;/g , "'"]
-    , [/&cent;/g , "¢"]
+    [ [/&lt;/g,    "<"]
+    , [/&gt;/g,    ">"]
+    , [/&amp;/g,   "&"]
+    , [/&quot;/g,  '"']
+    , [/&apos;/g,  "'"]
+    , [/&cent;/g,  "¢"]
     , [/&pound;/g, "£"]
-    , [/&#60;/g  , "<"]
-    , [/&#62;/g  , ">"]
-    , [/&#38;/g  , "&"]
-    , [/&#34;/g  , '"']
-    , [/&#39;/g  , "'"]
-    , [/&#162;/g , "¢"]
-    , [/&#163;/g , "£"]
+    , [/&#60;/g,   "<"]
+    , [/&#62;/g,   ">"]
+    , [/&#38;/g,   "&"]
+    , [/&#34;/g,   '"']
+    , [/&#39;/g,   "'"]
+    , [/&#162;/g,  "¢"]
+    , [/&#163;/g,  "£"]
     ];
 function unescapeHtmlEntities(str) {
     return htmlEntities.reduce(
@@ -84,9 +84,12 @@ readmeHtml = bootstrapRepls.reduce(
     readmeHtml
 );
 
+const codeTagRe = /<\/?code.*?>/g;
+const spanTagRe = /<\/?span.*?>/g;
+
 const docContents = (() => {
     const dc = [];
-    const headerRe = /<h[1-6]>([^<]+)<\/h[1-6]>/;
+    const headerRe = /<h1>([^\n]+?)<\/h1>/;
 
     let lastHeader = "<h1>Schönfinkel Documentation</h1>";
     while (readmeHtml.length > 0) {
@@ -106,13 +109,17 @@ const docContents = (() => {
             ]
         );
         lastHeader = headerMatch[0];
+
         readmeHtml =
             readmeHtml.slice(headerMatch.index + headerMatch[0].length);
     }
 
     return dc;
 })();
-const docHeaders = docContents.map(dc => dc[0]).slice(1);
+const docHeaders =
+    docContents.map(
+        dc => dc[0].replace(codeTagRe, "").replace(spanTagRe, "")
+    ).slice(1);
 
 
 const codeSnippetSelection = [
