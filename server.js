@@ -117,7 +117,7 @@ const docHeaders = docContents.map(dc => dc[0]).slice(1);
 
 const codeSnippetSelection = [
     "[|i>j→-2|i<j→1|→0¦(i,j)←b]\n-- :: Integral i => [(i, i)] -> [i]",
-    "f=(Δi).L  -- get length and subtract 1\ng=f[8..1] -- g=7",
+    "f=(Δ1).L  -- get length and subtract 1\ng=f[8..1] -- g=7",
     '("!-",,"-!")↵[0..2]\n-- [("!-", 0, "-!"), ("!-", 1, "-!"), ("!-", 2, "-!")]'
 ];
 
@@ -138,6 +138,20 @@ function getRandomCodeSnippets(count) {
           .map(codeHighlight.parse);
 }
 
+const exoticChars = "⊛→←≡≢¬⊙⩖⤔∈⁂⅋≫≪∩∪Σ↵⊢¦∀∃⟨⟩¡⟥Δ⌊×⊠÷⋄".split("");
+const exoticCharRows = exoticChars.reduce(
+    (accu, chr) => {
+        const row = accu[0];
+        const index = accu[1];
+        if (index % 3 === 0) {
+            row.push([]);
+        }
+        row[row.length - 1].push(chr);
+        return [row, index + 1];
+    },
+    [[], 0]
+)[0];
+
 
 app.engine("handlebars", exphbs());
 app.set("view engine", "handlebars");
@@ -147,6 +161,7 @@ app.get("/docs", (req, res) => {
 
     res.render("docs", {
         miniTopRow: true,
+        miniTopRowOffset: 3,
         docHeaders: docHeaders.map((h, i) => {
             return { title: h, active: false, docIndex: i + 1 };
         }),
@@ -171,6 +186,7 @@ app.get("/docs/*", (req, res) => {
 
     res.render("docs", {
         miniTopRow: true,
+        miniTopRowOffset: 3,
         docHeaders: docHeaders.map((h, i) => {
             return { title: h, active: i + 1 === active, docIndex: i + 1 };
         }),
@@ -187,6 +203,14 @@ app.get("/docs/*", (req, res) => {
                 "",
             docIndex: active + 1
         }
+    });
+});
+
+app.get("/editor", (req, res) => {
+    res.render("editor", {
+        miniTopRow: true,
+        miniTopRowOffset: 1,
+        exoticCharRows
     });
 });
 

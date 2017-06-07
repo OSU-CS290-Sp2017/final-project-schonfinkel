@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  {{> head}}
+
+  <body onload="smartquotes();" style="overflow-x: hidden;">
+    <div class="container">
+      {{> topRow}}
+
+      <div class="row">
+        <div class="col-md-12">
+          <h1 class="text-center">Schönfinkel Editor</h1>
+          <br />
+          <h2 id="byte-count" class="text-center">Current byte count: 0</h2>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-10">
+          <div class="row">
+            <textarea id="editor-area" autofocus autocomplete="off" placeholder="Start typing here..." spellcheck="false" wrap="off"></textarea>
+          </div>
+
+          <div class="row">
+            <div id="highlighting-preview-container">
+              <pre id="highlighting-preview-pre"><code id="highlighting-preview"></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-2" style="padding: 0;">
+          {{> exoticCharPad}}
+        </div>
+      </div>
+    </div>
+
+    {{> footer}}
+
+    {{> jsFooter}}
+
+    <script src="/code-preview.js"></script>
+
+    <script>
+    function insertAtCursor(field, val) {
+        if (field.value === undefined) {
+            field.value = "";
+        }
+
+        if (document.selection) {
+            field.focus();
+            sel = document.selection.createRange();
+            sel.text = val;
+        } else if (field.selectionStart || +field.selectionStart === 0) {
+            var startPos = field.selectionStart;
+            var endPos = field.selectionEnd;
+            field.value =
+                field.value.substring(0, startPos) +
+                val +
+                field.value.substring(endPos, field.value.length);
+            field.selectionStart = startPos + val.length;
+            field.selectionEnd = startPos + val.length;
+        } else {
+            field.value += val;
+        }
+    }
+
+    $(".char-pad-button").click(function(ev) {
+        ev.preventDefault();
+
+        var editorArea = document.getElementById("editor-area");
+        insertAtCursor(editorArea, ev.target.textContent);
+
+        highlightingPreview.update();
+    });
+
+    $("#highlighting-preview-toggle").click(function(ev) {
+        ev.preventDefault();
+
+        $("#highlighting-preview-container").toggleClass("hide");
+    });
+    </script>
+  </body>
+</html>

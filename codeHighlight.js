@@ -5,7 +5,7 @@
 const lineFeed = /^\n+/;
 const charLiteral = /^'\\?[^\n]'/;
 const strLiteral = /^"[^\n]*?"/;
-const blockComment = /^{-.*?-}/;
+const blockComment = /^{-[\s\S]*?-}/;
 const lineComment = /^--[^\n]*/;
 const spacing = /^ +/;
 const rightArr = /^→/;

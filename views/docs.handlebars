@@ -40,11 +40,6 @@
           {{> docsPrevNext}}
         </div>
 
-        <a href="#menu-toggle" id="menu-toggle">
-          <i class="fa fa-caret-right" aria-hidden="true" id="toggle-arrow"></i>
-          <span class="sr-only">(toggle menu on left)</span>
-        </a>
-
         {{> footer}}
       </div>
     </div>
@@ -52,13 +47,10 @@
     {{> jsFooter}}
 
     <script>
-      $("#menu-toggle").click(function(e) {
+    $(".menu-toggle").click(function(e) {
         e.preventDefault();
         $("#wrapper").toggleClass("toggled");
-
-        $("#toggle-arrow").toggleClass("fa-caret-right");
-        $("#toggle-arrow").toggleClass("fa-caret-left");
-      });
+    });
     </script>
   </body>
 </html>

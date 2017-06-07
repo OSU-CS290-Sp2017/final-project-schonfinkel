@@ -1,0 +1,13 @@
+<div class="container-fluid" style="padding: 0;">
+  {{#each exoticCharRows}}
+    <div class="row" style="margin: 0;">
+      {{#each this}}
+        <div class="col-md-4 col-sm-4" style="padding: 0;">
+          <button type="button" class="btn btn-secondary char-pad-button text-center">{{this}}</button>
+        </div>
+      {{/each}}
+    </div>
+  {{/each}}
+
+  <button id="highlighting-preview-toggle" type="button" class="btn btn-primary btn-block">Toggle highlighted preview</button>
+</div>
