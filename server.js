@@ -77,6 +77,7 @@ let readmeHtml =
 const bootstrapRepls =
     [ [/!!!info!!!([\s\S]+?)!!!\/info!!!/g, '<div class="alert alert-info" role="alert">$1</div>']
     , [/!!!hide!!!([\s\S]+?)!!!\/hide!!!/g, "$1"]
+    , [/!!!button!!!\s*(<a href="[\s\S]+?")>([\s\S]+?)<\/a>\s*!!!\/button!!!/g, '$1 class="btn btn-info btn-block" role="button">$2</a>']
     ];
 
 readmeHtml = bootstrapRepls.reduce(
@@ -179,7 +180,7 @@ app.get("/docs", (req, res) => {
         },
         next: {
             title: docHeaders[active],
-            docIndex: 2
+            docIndex: 1
         }
     });
 });
@@ -219,6 +220,16 @@ app.get("/editor", (req, res) => {
         miniTopRowOffset: 1,
         exoticCharRows
     });
+});
+
+app.get("/sch", (req, res) => {
+    const filePath = __dirname + "/public/sch";
+
+    res.set("Content-disposition", "attachment; filename=sch");
+    res.set("Content-type", "text/javascript");
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
 });
 
 app.get("/", (req, res) => {

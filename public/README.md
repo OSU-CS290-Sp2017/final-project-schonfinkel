@@ -22,11 +22,63 @@ counterparts. Schönfinkel does, however, define alternate syntax for many
 constructs as well as several builtins. To do this, Schönfinkel defines a custom
 code page that covers the same range as ASCII (1 byte per character), but with
 non-printable ASCII characters (including TAB) replaced with custom symbols. For
-the full codepage listed in an easy-to-read format, see "codepage.md".
+the full codepage listed in an easy-to-read format, see
+[codepage.md](https://github.com/AugmentedFifth/schonfinkel/blob/master/codepage.md).
 
 # Getting started; implementation
 
-lol
+Since the Schonfinkel compiler is written in JavaScript, the easiest way to get
+started is to just hit up the ["Try now"](/editor) here, online. It offers a
+text editor with buttons for inserting non-ASCII characters, a
+syntax-highlighted preview, and instant compilation into Haskell.
+
+The Schönfinkel compiler can then also be used as a command-line tool, provided
+that the user has [node](https://nodejs.org/) installed.
+
+!!!button!!!
+[The node version of the compiler can be downloaded here.](/sch)
+!!!/button!!!
+
+!!!info!!!
+Make sure to set the executable bit on the `sch` file, that way
+
+```
+$ ./sch
+```
+
+can be directly run from the command line. (The above assumes that the user is
+in the same directory as the file.)
+!!!/info!!!
+
+The CLI version of the Schönfinkel compiler offers two methods of decoding the
+specified file.
+
+```
+$ ./sch -c <inputFile> [outputFile]
+```
+
+Will read in `<inputFile>` and interpret it using the custom codepage. This
+generally isn't useful, but is the official method insofar as it's the only way
+for each character in the language to constitute exactly one byte. Once the
+compilation is done, it will be output either to `[outputFile]`, or, if that's
+not specified, a variation of the input file's name (with a `.hs` extension)
+will be used instead.
+
+```
+$ ./sch -u <inputFile> [outputFile]
+```
+
+Is the more usual use case. The `-u` flag stands for
+[Unicode](https://en.wikipedia.org/wiki/Unicode), and reads in the file assuming
+[UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding. Otherwise this is the
+same.
+
+**The compiler emits Haskell**, so there's more steps to be taken after the
+transpilation. Many will already have access to a Haskell compiler with which
+to compile the resulting `.hs` file for execution (or, which works equally well,
+an interpreter). For those who don't, I recommend the use of
+[Stack](https://docs.haskellstack.org/en/stable/README/). Some online REPLs
+exist that could work, like [TryHaskell](https://www.tryhaskell.org/).
 
 # Identifiers
 
@@ -269,7 +321,7 @@ semantic context in this case, there's no such thing as `l` outside of them.
 Comments are the same style as Haskell; more precisely, a block comment matches:
 
 ```javascript
-/{-.*-}/
+/{-[\s\S]*-}/
 ```
 
 A line comment, then, matches:
