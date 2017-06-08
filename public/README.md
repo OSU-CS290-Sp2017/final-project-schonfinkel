@@ -93,9 +93,13 @@ numeric literals exclusively.
 Additionally, the first 5 lowercase letters as a single identifier (`a`, `b`,
 `c`, `d`, `e`) are identifiers reserved for implicit input/command-line
 arguments. `b`, `c`, `d`, and `e` are the 1st, 2nd, 3rd, and 4th inputs to the
-program, in order, as `String`s. **NOTE**: These bindings are only visible
-inside of "naked" top-level expressions (see the "**Whole program semantics**"
-section below), so everywhere else, these identifiers are *not* reserved.
+program, in order, as `String`s.
+
+!!!info!!!
+**NOTE**: These bindings are only visible inside of "naked" top-level
+expressions (see the "[**Whole-program semantics**](/docs/11)" section), so
+everywhere else, these identifiers are *not* reserved.
+!!!/info!!!
 
 If less than 4 arguments are supplied, the remaining variables are just the
 empty string (`""`). If more than 4 arguments are supplied, `b`, `c`, `d`, and
@@ -147,8 +151,12 @@ inserted just before that, yielding an interpretation of
 ", "`U`["one","two","three","four"]
 ```
 
-(N.B.: The above snippet isn't actually valid Schönfinkel since it would be
-trying to make the list literal into an infix function.) This is the same thing:
+!!!warn!!!
+N.B.: The above snippet isn't actually valid Schönfinkel since it would be
+trying to make the list literal into an infix function.
+!!!/warn!!!
+
+This is the same thing:
 
 ```haskell
 y=["one","two","three","four"]
@@ -180,10 +188,11 @@ work identically as in Haskell, but use a single character (`←`) instead.
 # Conditionals
 
 Schönfinkel uses shortened conditional notation for `if`/`else if`/`else`
-constructs similar to the GHC extension "MultiWayIf", but without the `if`. To
-avoid ambiguity, Schönfinkel uses a special character (`¦`) for the vertical
-pipe character found in all list comprehensions (and additionally in `case`
-expressions, as will be seen later). For example,
+constructs similar to
+[the GHC extension "MultiWayIf"](http://ghc.readthedocs.io/en/8.0.2/glasgow_exts.html#multi-way-if-expressions),
+but without the `if`. To avoid ambiguity, Schönfinkel uses a special character
+(`¦`) for the vertical pipe character found in all list comprehensions (and
+additionally in `case` expressions, as will be seen later). For example,
 
 ```haskell
 v=[(-1, 8), (-1, 3), (23, 1), (1, 1)]
@@ -200,7 +209,7 @@ v=[(-1, 8), (-1, 3), (23, 1), (1, 1)]
 ```
 
 As you can see, omitting the condition (`|→`) always matches; it's the same as
-matching on `True` (`|True->`), or just the `else` keyword.
+matching on `True` in Haskell (`|True->`), or just the `else` keyword.
 
 It's common to get away with not using the `&&` function when logical AND is
 needed. Instead, guards and multi-way "if"s like the one above can have multiple
@@ -333,7 +342,9 @@ A line comment, then, matches:
 # Tuples
 
 Tuple syntax is almost entirely the same as in Haskell, with a small exception.
-Schönfinkel uses Haskell's `TupleSections` language mode by default. In Haskell:
+Schönfinkel uses Haskell's
+["TupleSections"](http://ghc.readthedocs.io/en/8.0.2/glasgow_exts.html#tuple-sections)
+language mode by default. In Haskell:
 
 ```haskell
 {-# LANGUAGE TupleSections #-}

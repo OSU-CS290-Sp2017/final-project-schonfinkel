@@ -219,7 +219,13 @@ unsafeLookup k m =
 
     "mapWithIndices": [`\
 mapWithIndices :: P.Integral i => (a -> i -> b) -> [a] -> [b]
-mapWithIndices f xs = P.zipWith f xs [0..]`]
+mapWithIndices f xs = P.zipWith f xs [0..]`],
+
+    "enumFromThrough": [`\
+enumFromThrough :: (P.Enum a, P.Ord a) => a -> a -> [a]
+enumFromThrough x y
+    | x P.<= y    = [x..y]
+    | P.otherwise = [x,(P.pred x)..y]`]
 };
 
 /* Ordered by precedence */
@@ -422,10 +428,11 @@ const imports = {
 };
 
 let out = "import qualified Prelude             as P\n\n";
+out += "import qualified System.Environment  as E\n\n";
 const lineArray = [];
 const calls = new Set();
 const nakeds = [];
-const range = /\[ ?([0-9]*\.?[0-9]+) ?\.\. ?([0-9]*\.?[0-9]+) ?\]/;
+const range = /\[(.+?)\.\.(.+?)\]/;
 function makeId(i) {
     return (i >= 26 ? makeId((i / 26 >> 0) - 1) : "") +
            "abcdefghijklmnopqrstuvwxyz"[i % 26 >> 0] +
@@ -454,7 +461,7 @@ tokens.forEach(l => {
                 context.length <= 79 ?
                     context :
                     context.slice(context.length - 79);
-            console.log(" ".repeat(trimmed.length - 1) + "↓");
+            console.log(" ".repeat(trimmed.length - 1) + "\u2193");
             console.log(trimmed);
         } else {
             console.log(context);
@@ -709,24 +716,21 @@ tokens.forEach(l => {
             break;
         }
         rangeIndex += rangeMatch.index + 1;
-        if (+rangeMatch[1] <= +rangeMatch[2]) {
-            continue;
-        }
+
         const repl =
-            "[ " +
-                rangeMatch[1] +
-                ", " +
-                (+rangeMatch[1] - 1) +
-                " .. " +
-                rangeMatch[2] +
-                " ]";
+            "( enumFromThrough " +
+                rangeMatch[1].trim() +
+                " " +
+                rangeMatch[2].trim() +
+                " )";
         line = line.replace(rangeMatch[0], repl);
+        calls.add("enumFromThrough");
     }
 
     if (naked) {
         const newId = makeId(nakeds.length);
-        nakeds.push(newId);
-        line = newId + " = " + line;
+        nakeds.push([newId, line]);
+        line = newId + " a b c d e = " + line;
     }
 
     lineArray.push(line);
@@ -775,16 +779,44 @@ calls.forEach(call => {
 out += "\n";
 out += lineArray.map(l => l.trimRight()).join("\n\n");
 
-/* Temporary hack ;) */
+const ioCalls =
+    [ /(^|[^A-Z])GC($|[^A-Z])/
+    , /(^|[^A-Z])GL($|[^A-Z])/
+    , /(^|[^A-Z])IR($|[^A-Z])/
+    , /(^|[^A-Z])P($|[^A-Z])/
+    , /(^|[^A-Z])PS($|[^A-Z])/
+    , /(^|[^A-Z])PT($|[^A-Z])/
+    , /(^|[^A-Z])RF($|[^A-Z])/
+    , /(^|[^A-Z])WF($|[^A-Z])/
+    ];
+
 out += "\n\n\n";
 out += "main :: P.IO ()\n";
 out += "main = do\n";
-nakeds.forEach(n => out += "    P.print P.$ " + n + "\n");
+out += "    a <- E.getArgs\n";
+out += '    let b = if P.length a P.> 0 then a P.!! 0 else ""\n';
+out += '    let c = if P.length a P.> 1 then a P.!! 1 else ""\n';
+out += '    let d = if P.length a P.> 2 then a P.!! 2 else ""\n';
+out += '    let e = if P.length a P.> 3 then a P.!! 3 else ""\n';
+nakeds.forEach(n => {
+    let isIo = false;
+    for (let i = 0; i < ioCalls.length; ++i) {
+        if (ioCalls[i].test(n[1])) {
+            isIo = true;
+            break;
+        }
+    }
+    if (isIo) {
+        out += "    " + n[0] + " a b c d e\n";
+    } else {
+        out += "    P.print P.$ " + n[0] + " a b c d e\n";
+    }
+});
 
 try {
     fs.writeFileSync(outputFile, out, "utf8");
 } catch (e) {
-    throw e;
+    throw e; // lol
 }
 
 console.log("Successfully wrote", outputFile);

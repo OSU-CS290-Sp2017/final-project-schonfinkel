@@ -1,651 +1,741 @@
 schtohs = (function() {
-    "use strict";
 
-    var codepage = "⊛→←≡≢¬⊙⩖⤔∈\n⁂⅋≫≪∩∪Σ↵⊢¦∀∃⟨⟩¡⟥Δ⌊×⊠÷ !\"#$%&'()*+,-./0123456789:;<=>" + "?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~⋄";
+"use strict";
 
-    var specialFnMappings = {
-        "⊛": "App.<*>",
-        "≡": "P.==",
-        "≢": "P./=",
-        "¬": "P.not",
-        "⊙": "`L.findIndices`",
-        "⩖": "&!&!&",
-        "⤔": "`M.mapM`",
-        "∈": "`P.elem`",
-        "⁂": "Arr.***",
-        "⅋": "Arr.&&&",
-        "∩": "`L.intersect`",
-        "∪": "`L.union`",
-        "Σ": "P.sum",
-        "↵": "App.<$>",
-        "⊢": "`L.partition`",
-        "∀": "`P.all`",
-        "∃": "`P.any`",
-        "¡": "`L.genericIndex`",
-        "Δ": "^-^-^",
-        "×": "!>^<!",
-        "⊠": "`L.zip`",
-        "÷": "`P.div`",
-        "⋄": "+:+:+"
-    };
 
-    var infixFnMappings = {
-        "^≫": "Arr.^>>",
-        "≫": "M.>>",
-        "≫=": "M.>>=",
-        "≫>": "Arr.>>>",
-        "≫^": "Arr.>>^",
-        "^≪": "Arr.^<<",
-        "≪<": "Arr.<<<",
-        "≪^": "Arr.<<^",
-        "=≪": "M.=<<",
-        "⌊": "P.floor",
-        "⌊^": "P.ceiling",
-        "⌊#": "P.round",
-        "⌊!": "P.truncate",
-        "$": "P.$",
-        "%": "`P.mod`",
-        "*": "P.*",
-        "+": "P.+",
-        ".": "P..",
-        "/": "P./",
-        ":": "P.:",
-        "<": "P.<",
-        ">": "P.>",
-        "^": "P.^",
-        "*>": "App.*>",
-        "**": "P.**",
-        "++": "P.++",
-        "<=": "P.<=",
-        "<$": "App.<$",
-        "<*": "App.<*",
-        "^^": "P.^^"
-    };
+const specialFnMappings = {
+    "⊛": "App.<*>",
+    "≡": "P.==",
+    "≢": "P./=",
+    "¬": "P.not",
+    "⊙": "`L.findIndices`",
+    "⩖": "&!&!&",
+    "⤔": "`M.mapM`",
+    "∈": "`P.elem`",
+    "⁂": "Arr.***",
+    "⅋": "Arr.&&&",
+    "∩": "`L.intersect`",
+    "∪": "`L.union`",
+    "Σ": "P.sum",
+    "↵": "App.<$>",
+    "⊢": "`L.partition`",
+    "∀": "`P.all`",
+    "∃": "`P.any`",
+    "¡": "`L.genericIndex`",
+    "Δ": "^-^-^",
+    "×": "!>^<!",
+    "⊠": "`L.zip`",
+    "÷": "`P.div`",
+    "⋄": "+:+:+"
+};
 
-    var upperIdMappings = {
-        "A": "L.filter",
-        "AR": "Arr.arr",
-        "B": "L.sortBy",
-        "BR": "L.break",
-        "C": "F.concat",
-        "CG": "O.comparing",
-        "CM": "O.compare",
-        "CO": "P.cos",
-        "CR": "P.curry",
-        "CY": "L.cycle",
-        "D": "L.nub",
-        "DR": "L.genericDrop",
-        "DW": "L.dropWhile",
-        "E": "F.maximum",
-        "ER": "P.error",
-        "EV": "P.even",
-        "EX": "P.exp",
-        "F": "L.zipWith",
-        "FC": "unsafeFind",
-        "FD": "F.find",
-        "FH": "findIndex1",
-        "FI": "L.findIndex",
-        "FJ": "May.fromJust",
-        "FL": "L.foldl1'",
-        "FM": "May.fromMaybe",
-        "FP": "P.flip",
-        "FR": "F.foldr1",
-        "FT": "P.fst",
-        "G": "F.minimum",
-        "GC": "P.getChar",
-        "GD": "P.gcd",
-        "GL": "P.getLine",
-        "H": "P.toEnum",
-        "I": "F.null",
-        "IE": "L.iterate",
-        "IJ": "May.isJust",
-        "IN": "May.isNothing",
-        "IR": "P.interact",
-        "J": "L.tail",
-        "K": "L.genericTake",
-        "L": "L.genericLength",
-        "LA": "L.last",
-        "LG": "P.log",
-        "LI": "P.lines",
-        "LM": "P.lcm",
-        "LU": "L.lookup",
-        "LV": "unsafeLookup",
-        "M": "P.show",
-        "MI": "mapWithIndices",
-        "N": "P.read",
-        "NE": "F.notElem",
-        "O": "P.fromEnum",
-        "OD": "P.odd",
-        "P": "P.print",
-        "PI": "P.pi",
-        "PR": "P.pred",
-        "PS": "P.putStrLn",
-        "PT": "P.putStr",
-        "Q": "subIndex",
-        "QT": "P.quot",
-        "R": "L.reverse",
-        "RC": "L.genericReplicate",
-        "RF": "P.readFile",
-        "RM": "P.rem",
-        "RP": "L.repeat",
-        "RT": "M.return",
-        "S": "L.sort",
-        "SD": "P.snd",
-        "SI": "P.sin",
-        "SL": "L.scanl1",
-        "SN": "L.span",
-        "SP": "L.genericSplitAt",
-        "SQ": "M.sequence",
-        "SR": "L.scanr",
-        "SS": "L.scanr1",
-        "ST": "P.sqrt",
-        "SU": "P.succ",
-        "T": "L.transpose",
-        "TA": "P.tan",
-        "U": "L.intercalate",
-        "UC": "P.uncurry",
-        "UD": "P.undefined",
-        "UL": "P.unlines",
-        "UT": "P.until",
-        "UW": "P.unwords",
-        "UZ": "L.unzip",
-        "V": "L.scanl",
-        "W": "L.takeWhile",
-        "WF": "P.writeFile",
-        "WO": "P.words",
-        "X": "F.foldl'",
-        "Y": "F.foldr",
-        "Z": "L.permutations",
-        "ZT": "L.zip3",
-        "ZU": "L.unzip3",
-        "ZW": "L.zipWith3"
-    };
+const infixFnMappings = {
+    "^≫": "Arr.^>>",
+    "≫":  "M.>>",
+    "≫=": "M.>>=",
+    "≫>": "Arr.>>>",
+    "≫^": "Arr.>>^",
+    "^≪": "Arr.^<<",
+    "≪<": "Arr.<<<",
+    "≪^": "Arr.<<^",
+    "=≪": "M.=<<",
+    "⌊":  "P.floor",
+    "⌊^": "P.ceiling",
+    "⌊#": "P.round",
+    "⌊!": "P.truncate",
+    "$":  "P.$",
+    "%":  "`P.mod`",
+    "*":  "P.*",
+    "+":  "P.+",
+    ".":  "P..",
+    "/":  "P./",
+    ":":  "P.:",
+    "<":  "P.<",
+    ">":  "P.>",
+    "^":  "P.^",
+    "*>": "App.*>",
+    "**": "P.**",
+    "++": "P.++",
+    "<=": "P.<=",
+    "<$": "App.<$",
+    "<*": "App.<*",
+    "^^": "P.^^"
+};
 
-    var definitions = {
-        "&!&!&": ["infixl 9 &!&!&\n(&!&!&) :: P.Eq a => [a] -> [a] -> [[a]]\n(&!&!&) l n =\n    P.fst P.$ P.until (\\(_, l') -> P.null l') (\\(accu, rest) ->\n        if L.genericTake needleLen rest P.== n then\n            (accu P.++ [[]], L.genericDrop needleLen rest)\n        else\n            (L.init accu P.++ [P.last accu P.++ [P.head rest]], P.tail rest)) ([[]], l)\n    where needleLen = L.genericLength n", "L"],
+const upperIdMappings = {
+    "A":  "L.filter",
+    "AR": "Arr.arr",
+    "B":  "L.sortBy",
+    "BR": "L.break",
+    "C":  "F.concat",
+    "CG": "O.comparing",
+    "CM": "O.compare",
+    "CO": "P.cos",
+    "CR": "P.curry",
+    "CY": "L.cycle",
+    "D":  "L.nub",
+    "DR": "L.genericDrop",
+    "DW": "L.dropWhile",
+    "E":  "F.maximum",
+    "ER": "P.error",
+    "EV": "P.even",
+    "EX": "P.exp",
+    "F":  "L.zipWith",
+    "FC": "unsafeFind",
+    "FD": "F.find",
+    "FH": "findIndex1",
+    "FI": "L.findIndex",
+    "FJ": "May.fromJust",
+    "FL": "L.foldl1'",
+    "FM": "May.fromMaybe",
+    "FP": "P.flip",
+    "FR": "F.foldr1",
+    "FT": "P.fst",
+    "G":  "F.minimum",
+    "GC": "P.getChar",
+    "GD": "P.gcd",
+    "GL": "P.getLine",
+    "H":  "P.toEnum",
+    "I":  "F.null",
+    "IE": "L.iterate",
+    "IJ": "May.isJust",
+    "IN": "May.isNothing",
+    "IR": "P.interact",
+    "J":  "L.tail",
+    "K":  "L.genericTake",
+    "L":  "L.genericLength",
+    "LA": "L.last",
+    "LG": "P.log",
+    "LI": "P.lines",
+    "LM": "P.lcm",
+    "LU": "L.lookup",
+    "LV": "unsafeLookup",
+    "M":  "P.show",
+    "MI": "mapWithIndices",
+    "N":  "P.read",
+    "NE": "F.notElem",
+    "O":  "P.fromEnum",
+    "OD": "P.odd",
+    "P":  "P.print",
+    "PI": "P.pi",
+    "PR": "P.pred",
+    "PS": "P.putStrLn",
+    "PT": "P.putStr",
+    "Q":  "subIndex",
+    "QT": "P.quot",
+    "R":  "L.reverse",
+    "RC": "L.genericReplicate",
+    "RF": "P.readFile",
+    "RM": "P.rem",
+    "RP": "L.repeat",
+    "RT": "M.return",
+    "S":  "L.sort",
+    "SD": "P.snd",
+    "SI": "P.sin",
+    "SL": "L.scanl1",
+    "SN": "L.span",
+    "SP": "L.genericSplitAt",
+    "SQ": "M.sequence",
+    "SR": "L.scanr",
+    "SS": "L.scanr1",
+    "ST": "P.sqrt",
+    "SU": "P.succ",
+    "T":  "L.transpose",
+    "TA": "P.tan",
+    "U":  "L.intercalate",
+    "UC": "P.uncurry",
+    "UD": "P.undefined",
+    "UL": "P.unlines",
+    "UT": "P.until",
+    "UW": "P.unwords",
+    "UZ": "L.unzip",
+    "V":  "L.scanl",
+    "W":  "L.takeWhile",
+    "WF": "P.writeFile",
+    "WO": "P.words",
+    "X":  "F.foldl'",
+    "Y":  "F.foldr",
+    "Z":  "L.permutations",
+    "ZT": "L.zip3",
+    "ZU": "L.unzip3",
+    "ZW": "L.zipWith3"
+};
 
-        "!>^<!": ["infixl 7 !>^<!\n(!>^<!) :: [a] -> [b] -> [(a, b)]\n(!>^<!) xs ys = [(x, y) | x <- xs, y <- ys]"],
+const definitions = {
+    "&!&!&": [`\
+infixl 9 &!&!&
+(&!&!&) :: P.Eq a => [a] -> [a] -> [[a]]
+(&!&!&) l n =
+    P.fst P.$ P.until (\\(_, l') -> P.null l') (\\(accu, rest) ->
+        if L.genericTake needleLen rest P.== n then
+            (accu P.++ [[]], L.genericDrop needleLen rest)
+        else
+            (L.init accu P.++ [P.last accu P.++ [P.head rest]], P.tail rest)) ([[]], l)
+    where needleLen = L.genericLength n`, "L"],
 
-        "+:+:+": ["infixr 5 +:+:+\n(+:+:+) :: [a] -> a -> [a]\n(+:+:+) l a = l P.++ [a]"],
+    "!>^<!": [`\
+infixl 7 !>^<!
+(!>^<!) :: [a] -> [b] -> [(a, b)]
+(!>^<!) xs ys = [(x, y) | x <- xs, y <- ys]`],
 
-        "subIndex": ["subIndex :: P.Integral i => i -> a -> [a] -> [a]\nsubIndex i a (b:bs)\n    | i P.< 0     = subIndex (L.genericLength bs P.+ i P.+ 1) a (b P.: bs)\n    | i P.== 0    = a P.: bs\n    | P.otherwise = b P.: subIndex (i P.- 1) a bs", "L"],
+    "+:+:+": [`\
+infixr 5 +:+:+
+(+:+:+) :: [a] -> a -> [a]
+(+:+:+) l a = l P.++ [a]`],
 
-        "unsafeFind": ["unsafeFind :: (a -> P.Bool) -> [a] -> a\nunsafeFind p l =\n    case L.find p l of\n        P.Just a -> a\n        _        -> P.undefined", "L"],
+    "subIndex": [`\
+subIndex :: P.Integral i => i -> a -> [a] -> [a]
+subIndex i a (b:bs)
+    | i P.< 0     = subIndex (L.genericLength bs P.+ i P.+ 1) a (b P.: bs)
+    | i P.== 0    = a P.: bs
+    | P.otherwise = b P.: subIndex (i P.- 1) a bs`, "L"],
 
-        "findIndex1": ["findIndex1 :: (a -> P.Bool) -> [a] -> P.Int\nfindIndex1 p l =\n    case L.findIndex p l of\n        P.Just i -> i\n        _        -> -1", "L"],
+    "unsafeFind": [`\
+unsafeFind :: (a -> P.Bool) -> [a] -> a
+unsafeFind p l =
+    case L.find p l of
+        P.Just a -> a
+        _        -> P.undefined`, "L"],
 
-        "unsafeLookup": ["unsafeLookup :: P.Eq a => a -> [(a, b)] -> b\nunsafeLookup k m =\n    case L.lookup k m of\n        P.Just b -> b\n        _        -> P.undefined", "L"],
+    "findIndex1": [`\
+findIndex1 :: (a -> P.Bool) -> [a] -> P.Int
+findIndex1 p l =
+    case L.findIndex p l of
+        P.Just i -> i
+        _        -> -1`, "L"],
 
-        "mapWithIndices": ["mapWithIndices :: P.Integral i => (a -> i -> b) -> [a] -> [b]\nmapWithIndices f xs = P.zipWith f xs [0..]"]
-    };
+    "unsafeLookup": [`\
+unsafeLookup :: P.Eq a => a -> [(a, b)] -> b
+unsafeLookup k m =
+    case L.lookup k m of
+        P.Just b -> b
+        _        -> P.undefined`, "L"],
 
-    /* Ordered by precedence */
-    var lineFeed = /^\n+/;
-    var charLiteral = /^'\\?[^\n]'/;
-    var strLiteral = /^"(\\.|[^"])*"/;
-    var blockComment = /^{-.*?-}/;
-    var lineComment = /^--[^\n]*/;
-    var spacing = /^ +/;
-    var rightArr = /^→/;
-    var leftArr = /^←/;
-    var do_ = /^⟥/;
-    var doubleDots = /^\.\.(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
-    var numericLiteral = /^[0-9]*\.?[0-9]+/;
-    var eqBinding = /^=(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
-    var semicolon = /^;/;
-    var backtick = /^`/;
-    var leftParen = /^\(/;
-    var rightParen = /^\)/;
-    var leftCurBracket = /^{/;
-    var rightCurBracket = /^}/;
-    var leftSqBracket = /^\[/;
-    var rightSqBracket = /^\]/;
-    var leftAngBracket = /^⟨/;
-    var rightAngBracket = /^⟩/;
-    var comma = /^,/;
-    var asAt = /^@(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
-    var vert = /^\|/;
-    var brokenVert = /^¦/;
-    var unaryMinus = /^-(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
-    var underscore = /^_/;
-    var specialFn = /^[⊛≡≢¬⊙⩖⤔∈⁂⅋∩∪Σ↵⊢∀∃¡Δ×⊠÷⋄]/;
-    var infixFn = /^(\^≫|≫|≫=|≫>|≫\^|\^≪|≪<|≪\^|=≪|⌊|⌊\^|⌊#|⌊!|[!#\$%&*+./:<=>?@\\^|~\-]+)/;
-    var upperId = /^[A-Z]+/;
-    var lowerId = /^[a-z]+/;
-    var regexes = [lineFeed, charLiteral, strLiteral, blockComment, lineComment, spacing, rightArr, leftArr, do_, doubleDots, numericLiteral, eqBinding, semicolon, backtick, leftParen, rightParen, leftCurBracket, rightCurBracket, leftSqBracket, rightSqBracket, leftAngBracket, rightAngBracket, comma, asAt, vert, brokenVert, unaryMinus, underscore, specialFn, infixFn, upperId, lowerId];
+    "mapWithIndices": [`\
+mapWithIndices :: P.Integral i => (a -> i -> b) -> [a] -> [b]
+mapWithIndices f xs = P.zipWith f xs [0..]`],
 
-    var imports = {
-        "M": "import qualified Control.Monad       as M",
+    "enumFromThrough": [`\
+enumFromThrough :: (P.Enum a, P.Ord a) => a -> a -> [a]
+enumFromThrough x y
+    | x P.<= y    = [x..y]
+    | P.otherwise = [x,(P.pred x)..y]`]
+};
+
+/* Ordered by precedence */
+const lineFeed = /^\n+/;
+const charLiteral = /^'\\?[^\n]'/;
+const strLiteral = /^"(\\.|[^"])*"/;
+const blockComment = /^{-.*?-}/;
+const lineComment = /^--[^\n]*/;
+const spacing = /^ +/;
+const rightArr = /^→/;
+const leftArr = /^←/;
+const do_ = /^⟥/;
+const doubleDots = /^\.\.(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
+const numericLiteral = /^[0-9]*\.?[0-9]+/;
+const eqBinding = /^=(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
+const semicolon = /^;/;
+const backtick = /^`/;
+const leftParen = /^\(/;
+const rightParen = /^\)/;
+const leftCurBracket = /^{/;
+const rightCurBracket = /^}/;
+const leftSqBracket = /^\[/;
+const rightSqBracket = /^\]/;
+const leftAngBracket = /^⟨/;
+const rightAngBracket = /^⟩/;
+const comma = /^,/;
+const asAt = /^@(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
+const vert = /^\|/;
+const brokenVert = /^¦/;
+const unaryMinus = /^-(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
+const underscore = /^_/;
+const specialFn = /^[⊛≡≢¬⊙⩖⤔∈⁂⅋∩∪Σ↵⊢∀∃¡Δ×⊠÷⋄]/;
+const infixFn = /^(\^≫|≫|≫=|≫>|≫\^|\^≪|≪<|≪\^|=≪|⌊|⌊\^|⌊#|⌊!|[!#\$%&*+./:<=>?@\\^|~\-]+)/;
+const upperId = /^[A-Z]+/;
+const lowerId = /^[a-z]+/;
+const regexes =
+    [ lineFeed
+    , charLiteral
+    , strLiteral
+    , blockComment
+    , lineComment
+    , spacing
+    , rightArr
+    , leftArr
+    , do_
+    , doubleDots
+    , numericLiteral
+    , eqBinding
+    , semicolon
+    , backtick
+    , leftParen
+    , rightParen
+    , leftCurBracket
+    , rightCurBracket
+    , leftSqBracket
+    , rightSqBracket
+    , leftAngBracket
+    , rightAngBracket
+    , comma
+    , asAt
+    , vert
+    , brokenVert
+    , unaryMinus
+    , underscore
+    , specialFn
+    , infixFn
+    , upperId
+    , lowerId
+    ];
+
+function compile(code) {
+    /* Tokenization */
+
+    const tokens = [[]];
+
+    while (code.length > 0) {
+        let matched = false;
+
+        for (const regex of regexes) {
+            const match = regex.exec(code);
+            if (match === null) {
+                continue;
+            }
+
+            const matchStr = match[0];
+            code = code.slice(matchStr.length);
+
+            if (~matchStr.indexOf("\n")) {
+                if (tokens[tokens.length - 1].length > 0) {
+                    tokens.push([]);
+                }
+            } else if (!spacing.test(matchStr)) {
+                tokens[tokens.length - 1].push(matchStr);
+            }
+
+            matched = true;
+            break;
+        }
+
+        if (!matched) {
+            let err = "Encountered unexpected character: " + code[0] + "\n";
+            err += "Context:\n\n";
+            err += "    " + tokens[tokens.length - 1].join(" ") + "\n";
+            throw err;
+        }
+    }
+
+    if (tokens[tokens.length - 1].length < 1) {
+        tokens.pop();
+    }
+
+    /* Hacky parsing directly into Haskell */
+
+    const imports = {
+        "M":   "import qualified Control.Monad       as M",
         "App": "import qualified Control.Applicative as App",
         "Arr": "import qualified Control.Arrow       as Arr",
-        "F": "import qualified Data.Foldable       as F",
-        "L": "import qualified Data.List           as L",
+        "F":   "import qualified Data.Foldable       as F",
+        "L":   "import qualified Data.List           as L",
         "May": "import qualified Data.Maybe          as May",
-        "O": "import qualified Data.Ord            as O"
+        "O":   "import qualified Data.Ord            as O"
     };
 
-    var range = /\[ ?([0-9]*\.?[0-9]+) ?\.\. ?([0-9]*\.?[0-9]+) ?\]/;
-
+    let out = "import qualified Prelude             as P\n\n";
+    out += "import qualified System.Environment  as E\n\n";
+    const lineArray = [];
+    const calls = new Set();
+    const nakeds = [];
+    const range = /\[(.+?)\.\.(.+?)\]/;
     function makeId(i) {
-        return (i >= 26 ? makeId((i / 26 >> 0) - 1) : "") + "abcdefghijklmnopqrstuvwxyz"[i % 26 >> 0] + "9";
+        return (i >= 26 ? makeId((i / 26 >> 0) - 1) : "") +
+            "abcdefghijklmnopqrstuvwxyz"[i % 26 >> 0] +
+            "9";
     }
 
-    function compile(input) {
-        var code = input.split("").filter(function (c) {
-            return ~codepage.indexOf(c);
-        }).join("");
+    tokens.forEach(function(l) {
+        const l_ = [];
 
-        /* Tokenization */
-
-        var tokens = [[]];
-
-        while (code.length > 0) {
-            var matched = false;
-
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = regexes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var regex = _step.value;
-
-                    var match = regex.exec(code);
-                    if (match === null) {
-                        continue;
-                    }
-
-                    var matchStr = match[0];
-                    code = code.slice(matchStr.length);
-
-                    if (~matchStr.indexOf("\n")) {
-                        if (tokens[tokens.length - 1].length > 0) {
-                            tokens.push([]);
-                        }
-                    } else if (!spacing.test(matchStr)) {
-                        tokens[tokens.length - 1].push(matchStr);
-                    }
-
-                    matched = true;
-                    break;
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
+        function failWithContext(msg, pinpoint) {
+            if (pinpoint === undefined) {
+                pinpoint = true;
             }
 
-            if (!matched) {
-                var leadingContext = "";
-                for (;;) {
-                    if (leadingContext.length > 18) {
-                        break;
-                    }
-                    var popped = tokens.pop();
-                    if (popped === undefined) {
-                        break;
-                    }
-                    if (~popped.indexOf(" ")) {
-                        leadingContext = popped + leadingContext;
-                    } else if (~popped.indexOf("\n")) {
-                        break;
+            let err = "";
+            if (msg) {
+                err += msg + "\n";
+            } else {
+                err += "Parsing failure.\n";
+            }
+
+            err += "Context:\n\n";
+
+            const context = l_.join(" ");
+            if (pinpoint) {
+                const trimmed =
+                    context.length <= 79 ?
+                        context :
+                        context.slice(context.length - 79);
+                err += " ".repeat(trimmed.length - 1) + "\u2193\n";
+                err += trimmed + "\n";
+            } else {
+                err += context + "\n";
+            }
+
+            throw err;
+        }
+
+        let line = "";
+        let naked = true;
+
+        let backtickFlag = false;
+        let doStack = [];
+        const matchStack = [];
+        let awaitCaseOf = 0;
+        let multiwayIfScope = 0;
+
+        l.forEach(function(token) {
+            l_.push(token);
+
+            if (backtickFlag && !(upperId.test(token) || lowerId.test(token))) {
+                failWithContext("Illegal use of backtick: `" + token);
+            }
+
+            if (
+                charLiteral.test(token) ||
+                strLiteral.test(token)  ||
+                numericLiteral.test(token)
+            ) {
+                line += token + " ";
+            } else if (blockComment.test(token) || spacing.test(token)) {
+                line += " ";
+            } else if (rightArr.test(token)) {
+                if (multiwayIfScope > matchStack.length) {
+                    if (
+                        line.length >= 8 &&
+                        line.slice(line.length - 8) === "else if "
+                    ) {
+                        line = line.slice(0, -3);
+                        multiwayIfScope = 0;
                     } else {
-                        leadingContext = popped + leadingContext;
+                        line += "then ";
                     }
-                }
-                leadingContext = leadingContext.slice(0, 18);
-                err = "Encountered unexpected character: ";
-                err += code[0];
-                err += "\nContext:\n\n";
-                err += " ".repeat(leadingContext.length);
-                err += "\u2193\n";
-                err += leadingContext;
-                err += code.slice(0, 99 - leadingContext.length) + "\n";
-
-                throw err;
-            }
-        }
-
-        if (tokens[tokens.length - 1].length < 1) {
-            tokens.pop();
-        }
-
-        /* Hacky parsing directly into Haskell */
-
-        var out = "import qualified Prelude             as P\n\n";
-        var lineArray = [];
-        var calls = new Set();
-        var nakeds = [];
-
-        tokens.forEach(function (l) {
-            var l_ = [];
-
-            function failWithContext(msg, pinpoint) {
-                var err = "";
-
-                if (pinpoint === undefined) {
-                    pinpoint = true;
-                }
-
-                if (msg) {
-                    err += msg + "\n";
                 } else {
-                    err += "Parsing failure.\n";
+                    line += "-> ";
                 }
-
-                err += "Context:\n\n";
-
-                var context = l_.join(" ");
-                if (pinpoint) {
-                    var trimmed = context.length <= 79 ? context : context.slice(context.length - 79);
-                    err += " ".repeat(trimmed.length - 1) + "\u2193\n";
-                    err += trimmed + "\n";
+            } else if (leftArr.test(token)) {
+                line += "<- ";
+            } else if (do_.test(token)) {
+                line += "( do ";
+                doStack.push(matchStack.length);
+            } else if (".." === token) {
+                line += ".. ";
+            } else if ("=" === token) {
+                line += "= ";
+                if (!matchStack.length) {
+                    naked = false;
+                }
+            } else if (";" === token) {
+                if (
+                    doStack.length &&
+                    doStack[doStack.length - 1] === matchStack.length
+                ) {
+                    line += "; ";
                 } else {
-                    err += context + "\n";
-                }
-
-                throw err;
-            }
-
-            var line = "";
-            var naked = true;
-
-            var backtickFlag = false;
-            var doFlag = false;
-            var matchStack = [];
-            var awaitCaseOf = 0;
-            var multiwayIfScope = 0;
-
-            l.forEach(function (token) {
-                l_.push(token);
-
-                if (backtickFlag && !(upperId.test(token) || lowerId.test(token))) {
-                    failWithContext("Illegal use of backtick: `" + token);
-                }
-
-                if (charLiteral.test(token) || strLiteral.test(token) || numericLiteral.test(token)) {
-                    line += token + " ";
-                } else if (blockComment.test(token) || spacing.test(token)) {
                     line += " ";
-                } else if (rightArr.test(token)) {
-                    if (multiwayIfScope > matchStack.length) {
-                        if (line.length >= 8 && line.slice(line.length - 8) === "else if ") {
-                            line = line.slice(0, -3);
-                            multiwayIfScope = 0;
-                        } else {
-                            line += "then ";
-                        }
-                    } else {
-                        line += "-> ";
-                    }
-                } else if (leftArr.test(token)) {
-                    line += "<- ";
-                } else if (do_.test(token)) {
-                    line += "( do ";
-                    doFlag = true;
-                } else if (".." === token) {
-                    line += ".. ";
-                } else if ("=" === token) {
-                    line += "= ";
-                    if (!matchStack.length) {
-                        naked = false;
-                    }
-                } else if (";" === token) {
-                    if (doFlag) {
-                        line += "; ";
-                    } else {
-                        line += " ";
-                    }
-                    // TODO: rest of the semicolon semantics? (?)
-                } else if ("`" === token) {
-                    line += "`";
-                    backtickFlag = true;
-                } else if ("(" === token) {
-                    line += "( ";
-                    matchStack.push("(");
-                } else if (")" === token) {
-                    line += ") ";
-                    if (matchStack.pop() !== "(") {
-                        failWithContext("Mismatched parentheses.");
-                    }
-                } else if ("{" === token) {
-                    line += "let ";
-                    matchStack.push("{");
-                } else if ("}" === token) {
-                    line += "in ";
-                    if (matchStack.pop() !== "{") {
-                        failWithContext("Mismatched let blocks.");
-                    }
-                } else if ("[" === token) {
-                    line += "[ ";
-                    matchStack.push("[");
-                } else if ("]" === token) {
-                    line += "] ";
-                    if (matchStack.pop() !== "[") {
-                        failWithContext("Mismatched square brackets.");
-                    }
-                } else if ("⟨" === token) {
-                    line += "( case ";
-                    matchStack.push("⟨");
-                    awaitCaseOf++;
-                } else if ("⟩" === token) {
-                    line += ") ";
-                    if (matchStack.pop() !== "⟨") {
-                        failWithContext("Mismatched case blocks.");
-                    }
-                    if (awaitCaseOf > matchStack.filter(function (m) {
-                        return m === "⟨";
-                    }).length) {
-                        failWithContext("Incorrect case block syntax.");
-                    }
-                } else if (comma.test(token)) {
-                    if (multiwayIfScope > matchStack.length) {
-                        line += "&%&%& ";
-                    } else {
-                        var peek = matchStack.length > 0 ? matchStack[matchStack.length - 1] : undefined;
+                }
+                // TODO: rest of the semicolon semantics? (?)
+            } else if ("`" === token) {
+                line += "`";
+                backtickFlag = true;
+            } else if ("(" === token) {
+                line += "( ";
+                matchStack.push("(");
+            } else if (")" === token) {
+                line += ") ";
+                if (matchStack.pop() !== "(") {
+                    failWithContext("Mismatched parentheses.");
+                }
+            } else if ("{" === token) {
+                line += "let ";
+                matchStack.push("{");
+            } else if ("}" === token) {
+                line += "in ";
+                if (matchStack.pop() !== "{") {
+                    failWithContext("Mismatched let blocks.");
+                }
+            } else if ("[" === token) {
+                line += "[ ";
+                matchStack.push("[");
+            } else if ("]" === token) {
+                line += "] ";
+                if (matchStack.pop() !== "[") {
+                    failWithContext("Mismatched square brackets.");
+                }
+            } else if ("⟨" === token) {
+                line += "( case ";
+                matchStack.push("⟨");
+                awaitCaseOf++;
+            } else if ("⟩" === token) {
+                line += ") ";
+                if (matchStack.pop() !== "⟨") {
+                    failWithContext("Mismatched case blocks.");
+                }
+                if (awaitCaseOf > matchStack.filter(function(m) { return m === "⟨"; }).length) {
+                    failWithContext("Incorrect case block syntax.");
+                }
+            } else if (comma.test(token)) {
+                if (multiwayIfScope > matchStack.length) {
+                    line += "&%&%& ";
+                } else {
+                    const peek =
+                        matchStack.length > 0 ?
+                            matchStack[matchStack.length - 1] :
+                            undefined;
 
-                        if (!peek) {
-                            failWithContext("Unexpected comma.");
-                        }
-                        switch (peek) {
-                            case "{":
-                                line += "; ";
-                                break;
-                            case "⟨":
-                                line += "-> ; ";
-                                break;
-                            default:
-                                line += ", ";
-                        }
+                    if (!peek) {
+                        failWithContext("Unexpected comma.");
                     }
-                } else if ("@" === token) {
-                    line += "@ ";
-                } else if ("|" === token) {
-                    if (!multiwayIfScope) {
-                        line += "if ";
-                        multiwayIfScope = matchStack.length + 1;
-                    } else {
-                        line += "else if ";
-                    }
-                } else if ("¦" === token) {
-                    var _peek = matchStack.length > 0 ? matchStack[matchStack.length - 1] : "";
-
-                    switch (_peek) {
-                        case "[":
-                            line += "| ";
-                            break;
-                        case "⟨":
+                    switch (peek) {
+                        case "{":
                             line += "; ";
                             break;
+                        case "⟨":
+                            line += "-> ; ";
+                            break;
                         default:
-                            failWithContext("Unexpected broken pipe.");
-                    }
-                } else if ("-" === token) {
-                    line += "P.negate ";
-                } else if ("_" === token) {
-                    line += "_ ";
-                } else if (specialFn.test(token)) {
-                    var callName = specialFnMappings[token];
-                    line += callName + " ";
-                    calls.add(callName);
-                } else if (infixFn.test(token)) {
-                    var _callName = token in infixFnMappings ? infixFnMappings[token] : token;
-                    line += _callName + " ";
-                    calls.add(_callName);
-                } else if (upperId.test(token)) {
-                    var _callName2 = upperIdMappings[token];
-
-                    if (!_callName2) {
-                        failWithContext("No such built-in defined: " + token);
-                    }
-
-                    line += _callName2 + (backtickFlag ? "` " : " ");
-                    backtickFlag = false;
-                    calls.add(_callName2);
-                } else if (lowerId.test(token)) {
-                    line += token + " ";
-                }
-            });
-
-            var leftOver = matchStack.pop();
-            if (leftOver) {
-                if (leftOver === "(") {
-                    failWithContext("Mismatched parentheses.", false);
-                }
-                if (leftOver === "{") {
-                    failWithContext("Mismatched let blocks.", false);
-                }
-                if (leftOver === "[") {
-                    failWithContext("Mismatched square brackets.", false);
-                }
-                if (leftOver === "⟨") {
-                    failWithContext("Mismatched case blocks.", false);
-                }
-            }
-
-            if (awaitCaseOf) {
-                failWithContext("Incorrect case block syntax.", false);
-            }
-
-            if (multiwayIfScope) {
-                failWithContext('Incomplete multi-way "if" statement. (missing |→)', false);
-            }
-
-            if (backtickFlag) {
-                line += "`";
-            }
-
-            while (~line.indexOf("-> ; ")) {
-                var lastIndex = line.lastIndexOf("-> ; ");
-                var miniMs = [];
-                var repl = null;
-                var a = line.slice(lastIndex + 3).split("");
-                for (var i = 0; i < a.length; ++i) {
-                    var ch = a[i];
-                    if (ch === "⟨") {
-                        miniMs.push("⟨");
-                    } else if (ch === "⟩") {
-                        miniMs.pop();
-                    } else if (ch === ">" && i > 0 && a.length > i + 1 && a[i + 1] === " " && a[i - 1] === "-" && miniMs.length < 1) {
-                        repl = a.slice(i - 1, a.indexOf(";", i)) + "; ";
+                            line += ", ";
                     }
                 }
-                if (repl === null) {
-                    failWithContext("Misplaced comma in pattern of case statement.", false);
+            } else if ("@" === token) {
+                line += "@ ";
+            } else if ("|" === token) {
+                if (!multiwayIfScope) {
+                    line += "if ";
+                    multiwayIfScope = matchStack.length + 1;
+                } else {
+                    line += "else if ";
                 }
-                var splitOut = line.split("-> ; ");
-                var rightSplit = splitOut.pop();
-                var leftSplit = splitOut.join("-> ; ");
-                line = leftSplit + repl + rightSplit;
-            }
+            } else if ("¦" === token) {
+                const peek =
+                    matchStack.length > 0 ?
+                        matchStack[matchStack.length - 1] :
+                        "";
 
-            var rangeIndex = 0;
-            for (;;) {
-                var rangeMatch = range.exec(line.slice(rangeIndex));
-                if (!rangeMatch) {
-                    break;
+                switch (peek) {
+                    case "[":
+                        line += "| ";
+                        break;
+                    case "⟨":
+                        line += "; ";
+                        break;
+                    default:
+                        failWithContext("Unexpected broken pipe.");
                 }
-                rangeIndex += rangeMatch.index + 1;
-                if (+rangeMatch[1] <= +rangeMatch[2]) {
-                    continue;
+            } else if ("-" === token) {
+                line += "P.negate ";
+            } else if ("_" === token) {
+                line += "_ ";
+            } else if (specialFn.test(token)) {
+                const callName = specialFnMappings[token];
+                line += callName + " ";
+                calls.add(callName);
+            } else if (infixFn.test(token)) {
+                const callName =
+                    token in infixFnMappings ?
+                        infixFnMappings[token] :
+                        token;
+                line += callName + " ";
+                calls.add(callName);
+            } else if (upperId.test(token)) {
+                const callName = upperIdMappings[token];
+
+                if (!callName) {
+                    failWithContext("No such built-in defined: " + token);
                 }
-                var _repl = "[ " + rangeMatch[1] + ", " + (+rangeMatch[1] - 1) + " .. " + rangeMatch[2] + " ]";
-                line = line.replace(rangeMatch[0], _repl);
-            }
 
-            if (naked) {
-                var newId = makeId(nakeds.length);
-                nakeds.push(newId);
-                line = newId + " = " + line;
-            }
-
-            lineArray.push(line);
-        });
-
-        var imported = new Set();
-        calls.forEach(function (call) {
-            var qual = call.split(".").shift();
-            if (!qual || imported.has(qual)) {
-                return;
-            }
-            var importStatement = imports[qual];
-            if (importStatement) {
-                imported.add(qual);
-                out += importStatement + "\n";
-            }
-            var def = definitions[call];
-            if (!def) {
-                return;
-            }
-            for (var i = 1; i < def.length; ++i) {
-                var addedImportStatement = imports[def[i]];
-                if (addedImportStatement) {
-                    imported.add(def[i]);
-                    out += addedImportStatement + "\n";
-                }
+                line += callName + (backtickFlag ? "` " : " ");
+                backtickFlag = false;
+                calls.add(callName);
+            } else if (lowerId.test(token)) {
+                line += token + " ";
             }
         });
 
+        const leftOver = matchStack.pop();
+        if (leftOver) {
+            if (leftOver === "(") {
+                failWithContext("Mismatched parentheses.", false);
+            }
+            if (leftOver === "{") {
+                failWithContext("Mismatched let blocks.", false);
+            }
+            if (leftOver === "[") {
+                failWithContext("Mismatched square brackets.", false);
+            }
+            if (leftOver === "⟨") {
+                failWithContext("Mismatched case blocks.", false);
+            }
+        }
+
+        if (awaitCaseOf) {
+            failWithContext("Incorrect case block syntax.", false);
+        }
+
+        if (multiwayIfScope) {
+            failWithContext(
+                'Incomplete multi-way "if" statement. (missing |→)',
+                false
+            );
+        }
+
+        if (backtickFlag) {
+            line += "`";
+        }
+
+        while (~line.indexOf("-> ; ")) {
+            const lastIndex = line.lastIndexOf("-> ; ");
+            const miniMs = [];
+            let repl = null;
+            const a = line.slice(lastIndex + 3).split("");
+            for (let i = 0; i < a.length; ++i) {
+                const ch = a[i];
+                if (ch === "⟨") {
+                    miniMs.push("⟨");
+                } else if (ch === "⟩") {
+                    miniMs.pop();
+                } else if (
+                    ch === ">" &&
+                    i > 0 &&
+                    a.length > i + 1 &&
+                    a[i + 1] === " " &&
+                    a[i - 1] === "-" &&
+                    miniMs.length < 1
+                ) {
+                    repl = a.slice(i - 1, a.indexOf(";", i)) + "; ";
+                }
+            }
+            if (repl === null) {
+                failWithContext(
+                    "Misplaced comma in pattern of case statement.",
+                    false
+                );
+            }
+            const splitOut = line.split("-> ; ");
+            const rightSplit = splitOut.pop();
+            const leftSplit = splitOut.join("-> ; ");
+            line = leftSplit + repl + rightSplit;
+        }
+
+        let rangeIndex = 0;
+        for (;;) {
+            const rangeMatch = range.exec(line.slice(rangeIndex));
+            if (!rangeMatch) {
+                break;
+            }
+            rangeIndex += rangeMatch.index + 1;
+
+            const repl =
+                "( enumFromThrough " +
+                    rangeMatch[1].trim() +
+                    " " +
+                    rangeMatch[2].trim() +
+                    " )";
+            line = line.replace(rangeMatch[0], repl);
+            calls.add("enumFromThrough");
+        }
+
+        if (naked) {
+            const newId = makeId(nakeds.length);
+            nakeds.push([newId, line]);
+            line = newId + " a b c d e = " + line;
+        }
+
+        lineArray.push(line);
+    });
+
+    const imported = new Set();
+    calls.forEach(function(call) {
+        const qual = call.split(".").shift();
+        if (!qual || imported.has(qual)) {
+            return;
+        }
+        const importStatement = imports[qual];
+        if (importStatement) {
+            imported.add(qual);
+            out += importStatement + "\n";
+        }
+        const def = definitions[call];
+        if (!def) {
+            return;
+        }
+        for (let i = 1; i < def.length; ++i) {
+            const addedImportStatement = imports[def[i]];
+            if (addedImportStatement) {
+                imported.add(def[i]);
+                out += addedImportStatement + "\n";
+            }
+        }
+    });
+
+    out += "\n\n";
+
+    const defined = new Set();
+    calls.forEach(function(call) {
+        if (defined.has(call)) {
+            return;
+        }
+        const def = definitions[call];
+        if (!def) {
+            return;
+        }
+        defined.add(call);
+        out += def[0];
         out += "\n\n";
+    });
 
-        var defined = new Set();
-        calls.forEach(function (call) {
-            if (defined.has(call)) {
-                return;
+    out += "\n";
+    out += lineArray.map(function(l) { return l.trimRight(); }).join("\n\n");
+
+    const ioCalls =
+        [ /(^|[^A-Z])GC($|[^A-Z])/
+        , /(^|[^A-Z])GL($|[^A-Z])/
+        , /(^|[^A-Z])IR($|[^A-Z])/
+        , /(^|[^A-Z])P($|[^A-Z])/
+        , /(^|[^A-Z])PS($|[^A-Z])/
+        , /(^|[^A-Z])PT($|[^A-Z])/
+        , /(^|[^A-Z])RF($|[^A-Z])/
+        , /(^|[^A-Z])WF($|[^A-Z])/
+        ];
+
+    out += "\n\n\n";
+    out += "main :: P.IO ()\n";
+    out += "main = do\n";
+    out += "    a <- E.getArgs\n";
+    out += '    let b = if P.length a P.> 0 then a P.!! 0 else ""\n';
+    out += '    let c = if P.length a P.> 1 then a P.!! 1 else ""\n';
+    out += '    let d = if P.length a P.> 2 then a P.!! 2 else ""\n';
+    out += '    let e = if P.length a P.> 3 then a P.!! 3 else ""\n';
+    nakeds.forEach(function(n) {
+        let isIo = false;
+        for (let i = 0; i < ioCalls.length; ++i) {
+            if (ioCalls[i].test(n[1])) {
+                isIo = true;
+                break;
             }
-            var def = definitions[call];
-            if (!def) {
-                return;
-            }
-            defined.add(call);
-            out += def[0];
-            out += "\n\n";
-        });
+        }
+        if (isIo) {
+            out += "    " + n[0] + " a b c d e\n";
+        } else {
+            out += "    P.print P.$ " + n[0] + " a b c d e\n";
+        }
+    });
 
-        out += "\n";
-        out += lineArray.map(function (l) {
-            return l.trimRight();
-        }).join("\n\n");
+    return out;
+}
 
-        /* Temporary hack ;) */
-        out += "\n\n\n";
-        out += "main :: P.IO ()\n";
-        out += "main = do\n";
-        nakeds.forEach(function (n) {
-            return out += "    P.print P.$ " + n + "\n";
-        });
+return { compile: compile };
 
-        return out;
-    }
-
-    return { compile: compile };
 })();

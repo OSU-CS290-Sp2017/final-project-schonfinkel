@@ -90,7 +90,7 @@ var tokenTypes =
 
 function parse(code) {
     var out, matched, tokenType, regex, match;
-    var matchStr, span_, err, i, popped, leadingContext;
+    var matchStr, span_, err, popped, leadingContext;
 
     out = [];
 

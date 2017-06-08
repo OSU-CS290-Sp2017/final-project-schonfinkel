@@ -78,6 +78,7 @@ const bootstrapRepls =
     [ [/!!!info!!!([\s\S]+?)!!!\/info!!!/g, '<div class="alert alert-info" role="alert">$1</div>']
     , [/!!!hide!!!([\s\S]+?)!!!\/hide!!!/g, "$1"]
     , [/!!!button!!!\s*(<a href="[\s\S]+?")>([\s\S]+?)<\/a>\s*!!!\/button!!!/g, '$1 class="btn btn-info btn-block" role="button">$2</a>']
+    , [/!!!warn!!!([\s\S]+?)!!!\/warn!!!/g, '<div class="alert alert-warning" role="alert">$1</div>']
     ];
 
 readmeHtml = bootstrapRepls.reduce(
