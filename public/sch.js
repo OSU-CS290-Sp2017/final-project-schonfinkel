@@ -216,10 +216,10 @@ mapWithIndices :: P.Integral i => (a -> i -> b) -> [a] -> [b]
 mapWithIndices f xs = P.zipWith f xs [0..]`],
 
     "enumFromThrough": [`\
-enumFromThrough :: (P.Enum a, P.Ord a) => a -> a -> [a]
+enumFromThrough :: P.Enum a => a -> a -> [a]
 enumFromThrough x y
-    | x P.<= y    = [x..y]
-    | P.otherwise = [x,(P.pred x)..y]`]
+    | P.fromEnum x P.<= P.fromEnum y = [x..y]
+    | P.otherwise                    = [x,(P.pred x)..y]`]
 };
 
 /* Ordered by precedence */
@@ -428,7 +428,7 @@ function compile(code) {
             } else if (leftArr.test(token)) {
                 line += "<- ";
             } else if (do_.test(token)) {
-                line += "( do ";
+                line += "do ";
                 doStack.push(matchStack.length);
             } else if (".." === token) {
                 line += ".. ";
