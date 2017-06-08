@@ -1,113 +1,93 @@
-highlightingPreview = (function() {
+window.highlightingPreview = (function() {
 "use strict";
 
-if (!String.prototype.repeat) {
-    String.prototype.repeat = function(count) {
-        if (count < 1) {
-            return "";
-        }
-        var result = "";
-        var pattern = this.valueOf();
-        while (count > 1) {
-            if (count & 1) {
-                result += pattern;
-            }
-            count >>= 1;
-            pattern += pattern;
-        }
-        return result + pattern;
-    };
-}
 
 /* Ordered by precedence */
-var lineFeed = /^\n+/;
-var charLiteral = /^'\\?[^\n]'/;
-var strLiteral = /^"[^\n]*?"/;
-var blockComment = /^{-[\s\S]*?-}/;
-var lineComment = /^--[^\n]*/;
-var spacing = /^ +/;
-var rightArr = /^→/;
-var leftArr = /^←/;
-var do_ = /^⟥/;
-var doubleDots = /^\.\.(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
-var numericLiteral = /^[0-9]*\.?[0-9]+/;
-var eqBinding = /^=(?=[^≪!#\$%&*+./:<=>?@\\^|~-])/;
-var semicolon = /^;/;
-var backtick = /^`/;
-var leftParen = /^\(/;
-var rightParen = /^\)/;
-var leftCurBracket = /^{/;
-var rightCurBracket = /^}/;
-var leftSqBracket = /^\[/;
-var rightSqBracket = /^\]/;
-var leftAngBracket = /^⟨/;
-var rightAngBracket = /^⟩/;
-var comma = /^,/;
-var asAt = /^@(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
-var vert = /^\|/;
-var brokenVert = /^¦/;
-var unaryMinus = /^-(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
-var underscore = /^_/;
-var specialFn = /^[⊛≡≢¬⊙⩖⤔∈⁂⅋∩∪Σ↵⊢∀∃¡Δ×⊠÷⋄]/;
-var infixFn = /^(\^≫|≫|≫=|≫>|≫\^|\^≪|≪<|≪\^|=≪|⌊|⌊\^|⌊#|⌊!|[!#\$%&*+./:<=>?@\\^|~\-]+)/;
-var upperId = /^[A-Z]+/;
-var lowerId = /^[a-z]+/;
-var tokenTypes =
-    { lineFeed: lineFeed
-    , charLiteral: charLiteral
-    , strLiteral: strLiteral
-    , blockComment: blockComment
-    , lineComment: lineComment
-    , spacing: spacing
-    , rightArr: rightArr
-    , leftArr: leftArr
-    , do_: do_
-    , doubleDots: doubleDots
-    , numericLiteral: numericLiteral
-    , eqBinding: eqBinding
-    , semicolon: semicolon
-    , backtick: backtick
-    , leftParen: leftParen
-    , rightParen: rightParen
-    , leftCurBracket: leftCurBracket
-    , rightCurBracket: rightCurBracket
-    , leftSqBracket: leftSqBracket
-    , rightSqBracket: rightSqBracket
-    , leftAngBracket: leftAngBracket
-    , rightAngBracket: rightAngBracket
-    , comma: comma
-    , asAt: asAt
-    , vert: vert
-    , brokenVert: brokenVert
-    , unaryMinus: unaryMinus
-    , underscore: underscore
-    , specialFn: specialFn
-    , infixFn: infixFn
-    , upperId: upperId
-    , lowerId: lowerId
+const lineFeed = /^\n+/;
+const charLiteral = /^'\\?[^\n]'/;
+const strLiteral = /^"[^\n]*?"/;
+const blockComment = /^{-[\s\S]*?-}/;
+const lineComment = /^--[^\n]*/;
+const spacing = /^ +/;
+const rightArr = /^→/;
+const leftArr = /^←/;
+const do_ = /^⟥/;
+const doubleDots = /^\.\.(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
+const numericLiteral = /^[0-9]*\.?[0-9]+/;
+const eqBinding = /^=(?=[^≪!#\$%&*+./:<=>?@\\^|~-])/;
+const semicolon = /^;/;
+const backtick = /^`/;
+const leftParen = /^\(/;
+const rightParen = /^\)/;
+const leftCurBracket = /^{/;
+const rightCurBracket = /^}/;
+const leftSqBracket = /^\[/;
+const rightSqBracket = /^\]/;
+const leftAngBracket = /^⟨/;
+const rightAngBracket = /^⟩/;
+const comma = /^,/;
+const asAt = /^@(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
+const vert = /^\|/;
+const brokenVert = /^¦/;
+const unaryMinus = /^-(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
+const underscore = /^_/;
+const specialFn = /^[⊛≡≢¬⊙⩖⤔∈⁂⅋∩∪Σ↵⊢∀∃¡Δ×⊠÷⋄]/;
+const infixFn = /^(\^≫|≫|≫=|≫>|≫\^|\^≪|≪<|≪\^|=≪|⌊|⌊\^|⌊#|⌊!|[!#\$%&*+./:<=>?@\\^|~\-]+)/;
+const upperId = /^[A-Z]+/;
+const lowerId = /^[a-z]+/;
+const tokenTypes =
+    { lineFeed
+    , charLiteral
+    , strLiteral
+    , blockComment
+    , lineComment
+    , spacing
+    , rightArr
+    , leftArr
+    , do_
+    , doubleDots
+    , numericLiteral
+    , eqBinding
+    , semicolon
+    , backtick
+    , leftParen
+    , rightParen
+    , leftCurBracket
+    , rightCurBracket
+    , leftSqBracket
+    , rightSqBracket
+    , leftAngBracket
+    , rightAngBracket
+    , comma
+    , asAt
+    , vert
+    , brokenVert
+    , unaryMinus
+    , underscore
+    , specialFn
+    , infixFn
+    , upperId
+    , lowerId
     };
 
 
 function parse(code) {
-    var out, matched, tokenType, regex, match;
-    var matchStr, span_, err, popped, leadingContext;
-
-    out = [];
+    const out = [];
 
     while (code.length > 0) {
-        matched = false;
+        let matched = false;
 
-        for (tokenType in tokenTypes) {
-            regex = tokenTypes[tokenType];
-            match = regex.exec(code);
+        for (const tokenType in tokenTypes) {
+            const regex = tokenTypes[tokenType];
+            const match = regex.exec(code);
 
             if (match) {
-                matchStr = match[0];
+                const matchStr = match[0];
 
                 if (~["lineFeed", "spacing"].indexOf(tokenType)) {
                     out.push(document.createTextNode(matchStr));
                 } else {
-                    span_ = document.createElement("span");
+                    const span_ = document.createElement("span");
                     span_.appendChild(document.createTextNode(matchStr));
                     span_.classList.add(tokenType);
                     out.push(span_);
@@ -120,12 +100,12 @@ function parse(code) {
         }
 
         if (!matched) {
-            leadingContext = "";
+            let leadingContext = "";
             for (;;) {
                 if (leadingContext.length > 18) {
                     break;
                 }
-                popped = out.pop();
+                const popped = out.pop();
                 if (popped === undefined) {
                     break;
                 }
@@ -140,7 +120,7 @@ function parse(code) {
                 }
             }
             leadingContext = leadingContext.slice(0, 18);
-            err = "Encountered unexpected character: ";
+            let err = "Encountered unexpected character: ";
             err += code[0];
             err += "\nContext:\n\n";
             err += " ".repeat(leadingContext.length);
@@ -157,22 +137,20 @@ function parse(code) {
 
 /*********************************************************************/
 
-var editorArea = document.getElementById("editor-area");
-var codepage =
+const editorArea = document.getElementById("editor-area");
+const codepage =
     "⊛→←≡≢¬⊙⩖⤔∈\n⁂⅋≫≪∩∪Σ↵⊢¦∀∃⟨⟩¡⟥Δ⌊×⊠÷ !\"#$%&'()*+,-./0123456789:;<=>" +
     "?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~⋄";
 
 function update() {
-    var hp, code, parsed, bc, bytecount;
+    const hp = document.getElementById("highlighting-preview");
 
-    hp = document.getElementById("highlighting-preview");
-
-    code = editorArea.value;
+    const code = editorArea.value;
 
     try {
-        parsed = parse(code);
+        const parsed = parse(code);
         hp.innerHTML = "";
-        parsed.forEach(function(p) {
+        parsed.forEach(p => {
             hp.appendChild(p);
         });
     } catch (err) {
@@ -180,10 +158,10 @@ function update() {
         hp.appendChild(document.createTextNode("" + err));
     }
 
-    bc = document.getElementById("byte-count");
+    const bc = document.getElementById("byte-count");
 
-    bytecount = 0;
-    code.split("").forEach(function(chr) {
+    let bytecount = 0;
+    code.split("").forEach(chr => {
         if (~codepage.indexOf(chr)) {
             bytecount++;
         } else {
@@ -197,6 +175,6 @@ function update() {
 
 editorArea.addEventListener("input", update);
 
-return { update: update };
+return { update };
 
 })();

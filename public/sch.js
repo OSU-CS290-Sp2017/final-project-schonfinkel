@@ -1,5 +1,4 @@
-schtohs = (function() {
-
+window.schtohs = (function() {
 "use strict";
 
 
@@ -298,7 +297,8 @@ function compile(code) {
     while (code.length > 0) {
         let matched = false;
 
-        for (const regex of regexes) {
+        for (let i = 0; i < regexes.length; ++i) {
+            const regex = regexes[i];
             const match = regex.exec(code);
             if (match === null) {
                 continue;
@@ -355,7 +355,7 @@ function compile(code) {
             "9";
     }
 
-    tokens.forEach(function(l) {
+    tokens.forEach(l => {
         const l_ = [];
 
         function failWithContext(msg, pinpoint) {
@@ -396,7 +396,7 @@ function compile(code) {
         let awaitCaseOf = 0;
         let multiwayIfScope = 0;
 
-        l.forEach(function(token) {
+        l.forEach(token => {
             l_.push(token);
 
             if (backtickFlag && !(upperId.test(token) || lowerId.test(token))) {
@@ -483,7 +483,7 @@ function compile(code) {
                 if (matchStack.pop() !== "⟨") {
                     failWithContext("Mismatched case blocks.");
                 }
-                if (awaitCaseOf > matchStack.filter(function(m) { return m === "⟨"; }).length) {
+                if (awaitCaseOf > matchStack.filter(m => m === "⟨").length) {
                     failWithContext("Incorrect case block syntax.");
                 }
             } else if (comma.test(token)) {
@@ -657,7 +657,7 @@ function compile(code) {
     });
 
     const imported = new Set();
-    calls.forEach(function(call) {
+    calls.forEach(call => {
         const qual = call.split(".").shift();
         if (!qual || imported.has(qual)) {
             return;
@@ -683,7 +683,7 @@ function compile(code) {
     out += "\n\n";
 
     const defined = new Set();
-    calls.forEach(function(call) {
+    calls.forEach(call => {
         if (defined.has(call)) {
             return;
         }
@@ -697,7 +697,7 @@ function compile(code) {
     });
 
     out += "\n";
-    out += lineArray.map(function(l) { return l.trimRight(); }).join("\n\n");
+    out += lineArray.map(l => l.trimRight()).join("\n\n");
 
     const ioCalls =
         [ /(^|[^A-Z])GC($|[^A-Z])/
@@ -718,7 +718,7 @@ function compile(code) {
     out += '    let c = if P.length a P.> 1 then a P.!! 1 else ""\n';
     out += '    let d = if P.length a P.> 2 then a P.!! 2 else ""\n';
     out += '    let e = if P.length a P.> 3 then a P.!! 3 else ""\n';
-    nakeds.forEach(function(n) {
+    nakeds.forEach(n => {
         let isIo = false;
         for (let i = 0; i < ioCalls.length; ++i) {
             if (ioCalls[i].test(n[1])) {
@@ -736,6 +736,6 @@ function compile(code) {
     return out;
 }
 
-return { compile: compile };
+return { compile };
 
 })();

@@ -1,5 +1,7 @@
 "use strict";
 
+/******** Imports ********/
+const babel         = require("babel-core");
 const codeHighlight = require("./codeHighlight");
 const exphbs        = require("express-handlebars");
 const express       = require("express");
@@ -8,9 +10,12 @@ const markdown      = require("markdown").markdown;
 const path          = require("path");
 
 
+/******** Setup ********/
 const app = express();
 const port = +process.env.PORT ? +process.env.PORT : 3000;
+const babelCache = {};
 
+/******** Pre-processing for converting Markdown to docs ********/
 const htmlEntities =
     [ [/&lt;/g,    "<"]
     , [/&gt;/g,    ">"]
@@ -124,6 +129,8 @@ const docHeaders =
     ).slice(1);
 
 
+/******** Pre-processing for showing random highlighted  ********/
+/******** code snippets on the index page                ********/
 const codeSnippetSelection = [
     "[|i>j→-2|i<j→1|→0¦(i,j)←b]\n-- :: Integral i => [(i, i)] -> [i]",
     "f=(Δ1).L  -- get length and subtract 1\ng=f[8..1] -- g=7",
@@ -147,6 +154,7 @@ function getRandomCodeSnippets(count) {
           .map(codeHighlight.parse);
 }
 
+/******** Setup for button pad on editor page ********/
 const exoticChars = "⊛→←≡≢¬⊙⩖⤔∈⁂⅋≫≪∩∪Σ↵⊢¦∀∃⟨⟩¡⟥Δ⌊×⊠÷⋄".split("");
 const exoticCharRows = exoticChars.reduce(
     (accu, chr) => {
@@ -162,6 +170,7 @@ const exoticCharRows = exoticChars.reduce(
 )[0];
 
 
+/******** Request handling with middleware ********/
 app.engine("handlebars", exphbs());
 app.set("view engine", "handlebars");
 
@@ -172,7 +181,11 @@ app.get("/docs", (req, res) => {
         miniTopRow: true,
         miniTopRowOffset: 3,
         docHeaders: docHeaders.map((h, i) => {
-            return { title: h, active: false, docIndex: i + 1 };
+            return {
+                title: h,
+                active: false,
+                docIndex: i + 1
+            };
         }),
         docContent: docContents[active][1],
         prev: {
@@ -197,7 +210,11 @@ app.get("/docs/*", (req, res) => {
         miniTopRow: true,
         miniTopRowOffset: 3,
         docHeaders: docHeaders.map((h, i) => {
-            return { title: h, active: i + 1 === active, docIndex: i + 1 };
+            return {
+                title: h,
+                active: i + 1 === active,
+                docIndex: i + 1
+            };
         }),
         docContent: docContents[active][1],
         prev: {
@@ -224,7 +241,7 @@ app.get("/editor", (req, res) => {
 });
 
 app.get("/sch", (req, res) => {
-    const filePath = __dirname + "/public/sch";
+    const filePath = path.join(__dirname, "public", "sch");
 
     res.set("Content-disposition", "attachment; filename=sch");
     res.set("Content-type", "text/javascript");
@@ -242,12 +259,33 @@ app.get("/", (req, res) => {
     });
 });
 
+app.get(/\/[0-9a-zA-Z_\-]+\.js\/?/, (req, res) => {
+    const filename = req.url.split("/").filter(s => s).pop();
+    if (filename in babelCache) {
+        res.send(babelCache[filename]);
+        return;
+    }
+
+    const filepath = path.join(__dirname, "public", filename);
+    babel.transformFile(filepath, {}, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.status(500);
+            return;
+        }
+        const code = result.code.replace('"use strict";', "");
+        babelCache[filename] = code;
+        res.send(code);
+    });
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("*", (req, res) => {
     res.status(404).render("404Page");
 });
 
+/******** Finally, start listening ********/
 app.listen(port, () => {
     console.log("== Server listening on port", port);
 });
