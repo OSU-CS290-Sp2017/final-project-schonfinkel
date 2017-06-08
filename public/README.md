@@ -12,9 +12,9 @@ Schönfinkel acts as a golfed
 [Haskell](https://www.haskell.org/) language.
 
 !!!info!!!
-Schönfinkel is under active development and is by no means a finished product;
-as such, expect features to appear and disappear or even changes in semantics
-to occur without prior notice.
+**Schönfinkel is under active development** and is by no means a finished
+product; as such, expect features to appear and disappear or even full changes
+in semantics to occur without prior notice.
 !!!/info!!!
 
 Essentially all Schönfinkel code constructs map directly to Haskell
@@ -27,13 +27,14 @@ the full codepage listed in an easy-to-read format, see
 
 # Getting started; implementation
 
-Since the Schonfinkel compiler is written in JavaScript, the easiest way to get
+Since the Schonfinkel compiler is written in
+[JavaScript](https://en.wikipedia.org/wiki/JavaScript), the easiest way to get
 started is to just hit up the ["Try now"](/editor) here, online. It offers a
 text editor with buttons for inserting non-ASCII characters, a
 syntax-highlighted preview, and instant compilation into Haskell.
 
-The Schönfinkel compiler can then also be used as a command-line tool, provided
-that the user has [node](https://nodejs.org/) installed.
+The Schönfinkel compiler can also be used as a command-line tool, provided that
+the user has [node](https://nodejs.org/) installed.
 
 !!!button!!!
 [The node version of the compiler can be downloaded here.](/sch)
@@ -68,22 +69,34 @@ will be used instead.
 $ ./sch -u <inputFile> [outputFile]
 ```
 
-Is the more usual use case. The `-u` flag stands for
+...is the more usual use case. The `-u` flag stands for
 [Unicode](https://en.wikipedia.org/wiki/Unicode), and reads in the file assuming
 [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding. Otherwise this is the
 same.
 
-**The compiler emits Haskell**, so there's more steps to be taken after the
+## Haskell, you say?
+
+**The compiler just emits Haskell**, so there's more steps to be taken after the
 transpilation. Many will already have access to a Haskell compiler with which
-to compile the resulting `.hs` file for execution (or, which works equally well,
-an interpreter). For those who don't, I recommend the use of
-[Stack](https://docs.haskellstack.org/en/stable/README/). Some online REPLs
-exist that could work, like [TryHaskell](https://www.tryhaskell.org/).
+to compile the resulting `.hs` file for execution (or, which also works, an
+interpreter). For those who don't, I recommend the use of
+[Stack](https://docs.haskellstack.org/en/stable/README/), or just any plain old
+installation of the GHC. Some online REPLs exist that could maybe work, like
+[TryHaskell](https://www.tryhaskell.org/).
+
+The Schonfinkel compiler really only acts as a syntax-level transpiler to
+Haskell, so you can expect blatant type errors and other errors like referencing
+non-existent variables to "compile" to Haskell just fine, only to fail
+miserably upon hiting the GHC (or Hugs or whatever). Thus:
+
+!!!info!!!
+Compiling the emitted Haskell code is the **real** test of program validity!
+!!!/info!!!
 
 # Identifiers
 
 One quirk of Schönfinkel is that all identifiers used by the programmer (i.e.,
-are not pre-defined) must consist *solely* of lowercase letters (i.e., must
+that are not pre-defined) must consist *solely* of lowercase letters (i.e., must
 match the regex `[a-z]+`). The only exception to this rule is programmer-defined
 infix functions. Characters in the range `[A-Z]` are reserved for builtins.
 Underscores (`_`) have only one meaning in Schönfinkel, namely, empty
@@ -97,7 +110,7 @@ program, in order, as `String`s.
 
 !!!info!!!
 **NOTE**: These bindings are only visible inside of "naked" top-level
-expressions (see the "[**Whole-program semantics**](/docs/11)" section), so
+expressions (see the ["Whole-program semantics"](/docs/11) section), so
 everywhere else, these identifiers are *not* reserved.
 !!!/info!!!
 
@@ -106,6 +119,8 @@ empty string (`""`). If more than 4 arguments are supplied, `b`, `c`, `d`, and
 `e` are assigned normally, and `a` is always a list of all arguments supplied
 (of type `[String]`), so all arguments are always accessible.
 
+## Infix functions: The exception to the rule
+
 Infix functions can still be defined normally like in Haskell. The characters
 available to be used are slightly different: for one-character infix functions
 defined by the programmer, the options are `!`, `?`, `#`, `&`, and `~`. Infix
@@ -113,6 +128,8 @@ functions with more characters (generally 2 at most) can combine those
 characters as well as the following other characters: `$`, `<`, `>`, `^`, `:`
 (so long as it doesn't start with `:`), `+`, `-`, `@`, `%`, `.`, `\`, `=`, and
 `*`.
+
+## Advantages to simple and restricted syntax
 
 Because of the restrictions on identifier names and their semantics, Schönfinkel
 allows omitting whitespace more often than in Haskell:
@@ -253,6 +270,8 @@ can be translated directly into Schönfinkel as (note the **angle brackets**,
 f x=⟨x¦0→18¦1→15¦2→12¦→12+x⟩
 ```
 
+## Creative use of commas for cases
+
 Additionally, multiple possible matches can map to the same expression easily
 and without redundancy using commas (`,`). The following Haskell:
 
@@ -276,8 +295,11 @@ f x=⟨x¦0→18¦1,2→16¦→12+x⟩
 `do` notation works in Schönfinkel much the same way as in Haskell, but instead
 of the word `do`, the `⟥` character is used instead. This saves the programmer
 from having to write the `o` and the whitespace(s) after it. Additionally, as
-mentioned before, monadic bindings use `←` instead of `<-`. Semicolons (`;`) can
-be used to separate statements within a `do` block just like in Haskell.
+mentioned before, monadic bindings use `←` instead of `<-`.
+
+Semicolons (`;`) are used to separate statements within a `do` block just like
+in Haskell, except that Schönfinkel offers no "sections," i.e. using linefeeds
+and indentation to provide separate statements. So you're stuck with semicolons.
 
 # Whitespace
 
@@ -349,7 +371,7 @@ language mode by default. In Haskell:
 ```haskell
 {-# LANGUAGE TupleSections #-}
 
-t = ("!-",, "-!") <$> [0..2]
+t = ("!-", , "-!") <$> [0..2]
 ```
 
 Here, `t` is `[("!-", 0, "-!"), ("!-", 1, "-!"), ("!-", 2, "-!")]`. As you can
@@ -414,13 +436,13 @@ Infix?: yes
 
 Haskell implementation of this function:
 
-```haskell
+```
 import Data.List
 
 infixl 9 ⩖
-(⩖) :: Eq a => [a] -> [a] -> [[a]]
+(⩖) :: Eq a => [a] -> [a] -> [[a]\]
 (⩖) l n =
-    fst $ until (\(_, l') -> null l') (\(accu, rest) ->
+    fst $ until (\(_, ll) -> null ll) (\(accu, rest) ->
         if genericTake needleLen rest == n then
             (accu ++ [[]], genericDrop needleLen rest)
         else

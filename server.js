@@ -188,7 +188,7 @@ app.get("/docs", (req, res) => {
 
 app.get("/docs/*", (req, res) => {
     const active = +req.url.split("/").filter(s => s).pop();
-    if (active < 0 || active >= docContents.length) {
+    if (isNaN(active) || active < 0 || active >= docContents.length) {
         res.status(404).render("404Page");
         return;
     }
