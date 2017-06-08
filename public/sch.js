@@ -234,7 +234,7 @@ const leftArr = /^←/;
 const do_ = /^⟥/;
 const doubleDots = /^\.\.(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
 const numericLiteral = /^[0-9]*\.?[0-9]+/;
-const eqBinding = /^=(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
+const eqBinding = /^=(?=[^≪!#\$%&*+./:<=>?@\\^|~-])/;
 const semicolon = /^;/;
 const backtick = /^`/;
 const leftParen = /^\(/;

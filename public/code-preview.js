@@ -31,7 +31,7 @@ var leftArr = /^←/;
 var do_ = /^⟥/;
 var doubleDots = /^\.\.(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
 var numericLiteral = /^[0-9]*\.?[0-9]+/;
-var eqBinding = /^=(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
+var eqBinding = /^=(?=[^≪!#\$%&*+./:<=>?@\\^|~-])/;
 var semicolon = /^;/;
 var backtick = /^`/;
 var leftParen = /^\(/;
