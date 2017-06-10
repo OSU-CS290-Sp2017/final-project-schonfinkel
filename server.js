@@ -79,11 +79,23 @@ let readmeHtml =
         .replace(endPreRe, "</pre>")
         .replace("<h1>Schönfinkel</h1>", "");
 
+const codepageHtml =
+    fs.readFileSync(
+        path.join(
+            __dirname,
+            "views",
+            "partials",
+            "codepage.handlebars"
+        ),
+        "utf8"
+    )
+    .replace(codeRe, highlightCodeBlock);
 const bootstrapRepls =
     [ [/!!!info!!!([\s\S]+?)!!!\/info!!!/g, '<div class="alert alert-info" role="alert">$1</div>']
     , [/!!!hide!!!([\s\S]+?)!!!\/hide!!!/g, "$1"]
     , [/!!!button!!!\s*(<a href="[\s\S]+?")>([\s\S]+?)<\/a>\s*!!!\/button!!!/g, '$1 class="btn btn-info btn-block" role="button">$2</a>']
     , [/!!!warn!!!([\s\S]+?)!!!\/warn!!!/g, '<div class="alert alert-warning" role="alert">$1</div>']
+    , [/!!!codepage!!!/g, codepageHtml.replace(/\$/g, "$$$$")]
     ];
 
 readmeHtml = bootstrapRepls.reduce(
@@ -132,12 +144,12 @@ const docHeaders =
 /******** Pre-processing for showing random highlighted  ********/
 /******** code snippets on the index page                ********/
 const codeSnippetSelection = [
-    "f b=[|i>j→-2|i<j→1|→0¦(i,j)←b]\n-- :: Integral i => [(i, i)] -> [i]",
-    "f=(Δ1).L  -- get length and subtract 1\ng=f[8..1] -- g=7",
-    '("!-",,"-!")↵[0..2]\n-- [("!-", 0, "-!"), ("!-", 1, "-!"), ("!-", 2, "-!")]',
-    "Σ$(Nn/)↵[1..Nn]\n-- Sum harmonic series for\n-- n=`command-line argument` :: String",
-    "r=[0..9]\n['|':(r≫=\\i→[|(iΔb,jΔc)∈[1,2,0,1,2]⊠[0,1,2,2,2]→'*'|→'_','|'])¦j←r]\n-- Emit a 'Game of Life' glider on a 10x10 grid",
-    "n=[0..7]\nPS⤔[[H$((i,j)∈)⊙V(\\s_→A(\\(z,w)->z∈n&&w∈n)$(\\(a,b)→F(\\c d→(a+c,b+d))[1,1,-1,-1,-2,-2,2,2][2,-2,2,-2,1,-1,1,-1])=≪s)[(Nb,Nc)]n¡0+48¦j←n]¦i←n]\n-- Full program printing map of number of moves required\n-- by a knight to arrive at all places on the chessboard\n-- starting from the coordinates supplied as arguments"
+    "f b=[|i>j→-2|i<j→1|→0¦(i,j)←b\n-- :: Integral i => [(i, i)] -> [i]",
+    "f=(Δ1).L -- get length and subtract 1\ng=f[8..1 -- g=7",
+    '("!-",,"-!")↵[0..2\n-- [("!-", 0, "-!"), ("!-", 1, "-!"), ("!-", 2, "-!")]',
+    "Σ$(Nn/)↵[1..Nn\n-- Sum harmonic series for\n-- n = `command-line argument` :: String",
+    "r=[0..9\n['|':(r≫=\\i→[|(iΔb,jΔc)∈[1,2,0,1,2]⊠[0,1,2,2,2]→'*'|→'_','|'])¦j←r\n-- Emit a 'Game of Life' glider on a 10x10 grid",
+    "n=[0..7\nPS⤔[[H$((i,j)∈)⊙V(\\s_→A(\\(z,w)->z∈n&&w∈n)$(\\(a,b)→F(\\c d→(a+c,b+d))[1,1,-1,-1,-2,-2,2,2][2,-2,2,-2,1,-1,1,-1])=≪s)[(Nb,Nc)]n¡0+48¦j←n]¦i←n\n-- Full program printing map of number of moves required\n-- by a knight to arrive at all places on the chessboard\n-- starting from the coordinates supplied as arguments"
 ];
 
 function fisherYates(array) {
@@ -251,6 +263,13 @@ app.get("/sch", (req, res) => {
 
     const fileStream = fs.createReadStream(filePath);
     fileStream.pipe(res);
+});
+
+app.get("/download", (req, res) => {
+    res.render("download", {
+        miniTopRow: true,
+        miniTopRowOffset: 1
+    });
 });
 
 app.get("/", (req, res) => {

@@ -93,6 +93,12 @@ pre {
     min-height: 150px;
 }
 
+#codepage th, #codepage td {
+    min-width: 50px;
+    padding: 10px;
+    border: 2px solid rgba(192, 192, 192, 0.3);
+}
+
 /**************** Code highlighting ****************/
 
 .charLiteral {

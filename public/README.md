@@ -21,9 +21,8 @@ Essentially all Schönfinkel code constructs map directly to Haskell
 counterparts. Schönfinkel does, however, define alternate syntax for many
 constructs as well as several builtins. To do this, Schönfinkel defines a custom
 code page that covers the same range as ASCII (1 byte per character), but with
-non-printable ASCII characters (including TAB) replaced with custom symbols. For
-the full codepage listed in an easy-to-read format, see
-[codepage.md](https://github.com/AugmentedFifth/schonfinkel/blob/master/codepage.md).
+non-printable ASCII characters (including TAB) replaced with custom symbols.
+[See here for the full codepage listed in an easy-to-read format](/docs/13).
 
 # Getting started; implementation
 
@@ -191,7 +190,7 @@ were applied to it. That is, the order of its arguments are reversed:
 ```haskell
 (+1)↵[1..5]  -- [2, 3, 4, 5, 6]
 
-[1..5]`↵(+1) -- [2, 3, 4, 5, 6]
+[1..5]\`↵(+1) -- [2, 3, 4, 5, 6]
 ```
 
 # Bindings
@@ -361,7 +360,7 @@ The above won't work, because the second time that `l` is mentioned is outside
 of the parentheses that it was bound in. Since the parentheses are dictating the
 semantic context in this case, there's no such thing as `l` outside of them.
 
-# "Automatic bracket insertion"
+# Automatic bracket insertion
 
 Similar to many calculators, Schönfinkel will happily assume that you meant to
 add any of the following closing brackets:
@@ -439,6 +438,10 @@ stdout, after being `show`n and having a line feed appended to the resulting
 `String`. Now that all naked expressions have a type of `IO a`, they are called
 as if from the `main` function, in order of occurence, chained using the `>>`
 function (i.e. any "return values", trivial or nontrivial, are discarded).
+
+# Codepage
+
+!!!codepage!!!
 
 # 1-byte built-in functions
 

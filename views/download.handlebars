@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  {{> head}}
+
+  <body onload="smartquotes();">
+    <div class="container">
+      {{> topRow}}
+
+      <div class="row">
+        <div class="col-md-12">
+          <h1 class="text-center">Download the Schönfinkel Transpiler</h1>
+
+          <hr />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-12">
+          <a href="/sch" class="btn btn-info btn-lg btn-block" role="button">
+            <i class="fa fa-download" aria-hidden="true"></i>&nbsp;&nbsp;The command-line transpiler can be downloaded here.
+          </a>
+
+          <hr />
+
+          <br />
+
+          <h2>
+            The Schönfinkel compiler is used as a command-line tool, and assumes that
+            the user has <a href="https://nodejs.org/">node</a> installed.
+          </h2>
+
+          <br />
+
+          <div class="alert alert-info" role="alert">
+            <p>
+              Make sure to set the executable bit on the <code>sch</code> file, that way
+            </p>
+
+            <pre class="snippet-pre"><code>
+    $ ./sch
+
+</code></pre>
+
+            can be directly run from the command line. (The above assumes that the user is
+            in the same directory as the file.)
+          </div>
+
+          <p>
+            The CLI version of the Schönfinkel compiler offers two methods of decoding the
+            specified file.
+          </p>
+
+          <pre class="snippet-pre"><code>
+    $ ./sch -c &lt;inputFile&gt; [outputFile]
+
+</code></pre>
+
+          <p>
+            Will read in <code>&lt;inputFile&gt;</code> and interpret it using the custom codepage. This
+            generally isn't useful, but is the official method insofar as it's the only way
+            for each character in the language to constitute exactly one byte. Once the
+            compilation is done, it will be output either to <code>[outputFile]</code>, or, if that's
+            not specified, a variation of the input file's name (with a <code>.hs</code> extension)
+            will be used instead.
+          </p>
+
+          <pre class="snippet-pre"><code>
+    $ ./sch -u &lt;inputFile&gt; [outputFile]
+
+</code></pre>
+
+          <p>
+            ...is the more usual use case. The <code>-u</code> flag stands for
+            <a href="https://en.wikipedia.org/wiki/Unicode">Unicode</a>, and reads in the file assuming
+            <a href="https://en.wikipedia.org/wiki/UTF-8">UTF-8</a> encoding. Otherwise this is the
+            same.
+          </p>
+
+          <h2>Haskell, you say?</h2>
+
+          <p>
+            <strong>The compiler just emits Haskell</strong>, so there's more steps to be taken after the
+            transpilation. Many will already have access to a Haskell compiler with which
+            to compile the resulting <code>.hs</code> file for execution (or, which also works, an
+            interpreter). For those who don't, I recommend the use of
+            <a href="https://docs.haskellstack.org/en/stable/README/">Stack</a>, or just any plain old
+            installation of the GHC. Some online REPLs exist that could maybe work, like
+            <a href="https://www.tryhaskell.org/">TryHaskell</a>.
+          </p>
+
+          <p>
+            The Schonfinkel compiler really only acts as a syntax-level transpiler to
+            Haskell, so you can expect blatant type errors and other errors like referencing
+            non-existent variables to "compile" to Haskell just fine, only to fail
+            miserably upon hiting the GHC (or Hugs or whatever). Thus:
+          </p>
+
+          <div class="alert alert-info" role="alert">
+            Compiling the emitted Haskell code is the <strong>real</strong> test of program validity!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{> footer}}
+
+    {{> jsFooter}}
+  </body>
+</html>

@@ -256,7 +256,7 @@ enumFromThrough x y
 const lineFeed = /^\n+/;
 const charLiteral = /^'\\?[^\n]'/;
 const strLiteral = /^"(\\.|[^"])*"/;
-const blockComment = /^{-.*?-}/;
+const blockComment = /^{-[\s\S]*?-}/;
 const lineComment = /^--[^\n]*/;
 const spacing = /^ +/;
 const rightArr = /^→/;
@@ -387,6 +387,7 @@ function compile(code) {
             "abcdefghijklmnopqrstuvwxyz"[i % 26 >> 0] +
             "9";
     }
+    const openComment = /({-|--[^\n]*)/;
 
     tokens.forEach(l => {
         const l_ = [];
@@ -632,22 +633,44 @@ function compile(code) {
             }
         });
 
-        let leftOver = matchStack.pop();
-        while (leftOver) {
-            switch (leftOver) {
-                case "(":
-                    line += ") ";
-                    break;
-                case "[":
-                    line += "] ";
-                    break;
-                default:
-                    line += ") ";
-                    if (awaitCaseOf > matchStack.filter(m => m === "⟨").length) {
-                        failWithContext("Incorrect case block syntax.");
-                    }
+        if (matchStack.length > 0) {
+            const splitted = line.split(openComment);
+            const split = (() => {
+                if (splitted.length === 1) {
+                    return [splitted[0], ""];
+                }
+                if (splitted[splitted.length - 1] === "") {
+                    return [
+                        splitted.slice(0, splitted.length - 2).join(""),
+                        splitted[splitted.length - 2]
+                    ];
+                }
+                if (~splitted[splitted.length - 1].indexOf("-}")) {
+                    return [splitted.join(""), ""];
+                }
+                return [
+                    splitted.slice(0, splitted.length - 3).join(""),
+                    splitted[splitted.length - 3] + splitted[splitted.length - 2]
+                ];
+            })();
+            let leftOver = matchStack.pop();
+            while (leftOver) {
+                switch (leftOver) {
+                    case "(":
+                        split[0] += ") ";
+                        break;
+                    case "[":
+                        split[0] += "] ";
+                        break;
+                    default:
+                        split[0] += ") ";
+                        if (awaitCaseOf > matchStack.filter(m => m === "⟨").length) {
+                            failWithContext("Incorrect case block syntax.");
+                        }
+                }
+                leftOver = matchStack.pop();
             }
-            leftOver = matchStack.pop();
+            line = split.join("");
         }
 
         if (awaitCaseOf) {
@@ -662,7 +685,7 @@ function compile(code) {
         }
 
         if (backtickFlag) {
-            line += "`";
+            failWithContext("Unexpected backtick.");
         }
 
         while (~line.indexOf("-> ; ")) {
