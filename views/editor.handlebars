@@ -2,7 +2,7 @@
 <html lang="en">
   {{> head}}
 
-  <body onload="smartquotes();" style="overflow-x: hidden;">
+  <body onload="smartquotes();">
     <div class="container">
       {{> topRow}}
 
@@ -43,9 +43,9 @@
           <pre id="output-pre"><code id="output"></code></pre>
         </div>
       </div>
-    </div>
 
-    {{> footer}}
+      {{> footer}}
+    </div>
 
     {{> jsFooter}}
 
@@ -105,8 +105,6 @@
 
         outputc.innerHTML = "";
         outputc.appendChild(document.createTextNode(output));
-
-        //$("#output-container").removeClass("hide");
     });
     </script>
   </body>
