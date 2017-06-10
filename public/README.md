@@ -180,6 +180,20 @@ y=["one","two","three","four"]
 ", "`Uy
 ```
 
+## An even funkier way to use backticks
+
+Backticks can also be used on functions that are infix to begin with (i.e. they
+take in exactly two arguments and don't have any letters in the name). This
+has essentially the same syntax rules as above, but instead of turning into an
+infix function, it makes the function behave as if the Haskell function `flip`
+were applied to it. That is, the order of its arguments are reversed:
+
+```haskell
+(+1)↵[1..5]  -- [2, 3, 4, 5, 6]
+
+[1..5]`↵(+1) -- [2, 3, 4, 5, 6]
+```
+
 # Bindings
 
 `let`/`where` bindings work similarly to Haskell, but have more concise syntax.
@@ -346,6 +360,36 @@ f x=({l=W(<3)x}⊠l)l  -- Very bad!
 The above won't work, because the second time that `l` is mentioned is outside
 of the parentheses that it was bound in. Since the parentheses are dictating the
 semantic context in this case, there's no such thing as `l` outside of them.
+
+# "Automatic bracket insertion"
+
+Similar to many calculators, Schönfinkel will happily assume that you meant to
+add any of the following closing brackets:
+
+* `)`
+* `]`
+* `⟩`
+
+**at the end of a line** (i.e. just before a linefeed `\n`), provided that they
+are "expected" (i.e. their left-hand counterparts are still on the stack). As a
+very simple example, the following works just fine to define a function that
+doubles its argument:
+
+```haskell
+f=(*2
+```
+
+It still works even when there's nesting, too. Just treat it like a stack:
+
+```haskell
+f x=⟨x¦0→(+)¦→(*
+```
+
+...is the same as:
+
+```haskell
+f x=⟨x¦0→(+)¦→(*)⟩
+```
 
 # Comments
 
@@ -828,6 +872,10 @@ Equivalent of `Prelude.truncate` in Haskell.
 
 Infix?: no
 
+## `&&`
+
+Unchanged from Haskell.
+
 ## `*>`
 
 Equivalent of `Control.Applicative.*>` in Haskell.
@@ -883,6 +931,16 @@ Infix?: yes
 Equivalent of `Control.Arrow.^<<` in Haskell.
 
 Infix?: yes
+
+## `||`
+
+Unchanged from Haskell.
+
+## `AB`
+
+Equivalent of `Prelude.abs` in Haskell.
+
+Mnemonic: **AB**solute value
 
 ## `AR`
 

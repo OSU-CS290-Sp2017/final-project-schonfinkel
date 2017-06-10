@@ -1,6 +1,24 @@
 window.schtohs = (function() {
 "use strict";
 
+/******** Polyfill ********/
+if (!String.prototype.repeat) {
+    String.prototype.repeat = function(count) {
+        if (count < 1) {
+            return "";
+        }
+        let result = "";
+        let pattern = this.valueOf();
+        while (count > 1) {
+            if (count & 1) {
+                result += pattern;
+            }
+            count >>= 1;
+            pattern += pattern;
+        }
+        return result + pattern;
+    };
+}
 
 const specialFnMappings = {
     "⊛": "App.<*>",
@@ -48,7 +66,7 @@ const infixFnMappings = {
     "+":  "P.+",
     ".":  "P..",
     "/":  "P./",
-    ":":  "P.:",
+    ":":  ":",
     "<":  "P.<",
     ">":  "P.>",
     "^":  "P.^",
@@ -58,11 +76,14 @@ const infixFnMappings = {
     "<=": "P.<=",
     "<$": "App.<$",
     "<*": "App.<*",
-    "^^": "P.^^"
+    "^^": "P.^^",
+    "&&": "P.&&",
+    "||": "P.||"
 };
 
 const upperIdMappings = {
     "A":  "L.filter",
+    "AB": "P.abs",
     "AR": "Arr.arr",
     "B":  "L.sortBy",
     "BR": "L.break",
@@ -172,10 +193,20 @@ infixl 9 &!&!&
             (L.init accu P.++ [P.last accu P.++ [P.head rest]], P.tail rest)) ([[]], l)
     where needleLen = L.genericLength n`, "L"],
 
+    "&%&%&": [`\
+infixl 0 &%&%&
+(&%&%&) :: P.Bool -> P.Bool -> P.Bool
+(&%&%&) x y = x P.&& y`],
+
     "!>^<!": [`\
 infixl 7 !>^<!
 (!>^<!) :: [a] -> [b] -> [(a, b)]
 (!>^<!) xs ys = [(x, y) | x <- xs, y <- ys]`],
+
+    "^-^-^": [`\
+infixl 6 ^-^-^
+(^-^-^) :: P.Num a => a -> a -> a
+(^-^-^) x y = x P.- y`],
 
     "+:+:+": [`\
 infixr 5 +:+:+
@@ -185,9 +216,9 @@ infixr 5 +:+:+
     "subIndex": [`\
 subIndex :: P.Integral i => i -> a -> [a] -> [a]
 subIndex i a (b:bs)
-    | i P.< 0     = subIndex (L.genericLength bs P.+ i P.+ 1) a (b P.: bs)
-    | i P.== 0    = a P.: bs
-    | P.otherwise = b P.: subIndex (i P.- 1) a bs`, "L"],
+    | i P.< 0     = subIndex (L.genericLength bs P.+ i P.+ 1) a (b : bs)
+    | i P.== 0    = a : bs
+    | P.otherwise = b : subIndex (i P.- 1) a bs`, "L"],
 
     "unsafeFind": [`\
 unsafeFind :: (a -> P.Bool) -> [a] -> a
@@ -231,6 +262,7 @@ const spacing = /^ +/;
 const rightArr = /^→/;
 const leftArr = /^←/;
 const do_ = /^⟥/;
+const lambda = /^\\(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
 const doubleDots = /^\.\.(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
 const numericLiteral = /^[0-9]*\.?[0-9]+/;
 const eqBinding = /^=(?=[^≪!#\$%&*+./:<=>?@\\^|~-])/;
@@ -251,7 +283,7 @@ const brokenVert = /^¦/;
 const unaryMinus = /^-(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
 const underscore = /^_/;
 const specialFn = /^[⊛≡≢¬⊙⩖⤔∈⁂⅋∩∪Σ↵⊢∀∃¡Δ×⊠÷⋄]/;
-const infixFn = /^(\^≫|≫|≫=|≫>|≫\^|\^≪|≪<|≪\^|=≪|⌊|⌊\^|⌊#|⌊!|[!#\$%&*+./:<=>?@\\^|~\-]+)/;
+const infixFn = /^(≫=|\^≫|≫|≫>|≫\^|\^≪|≪<|≪\^|=≪|⌊|⌊\^|⌊#|⌊!|[!#\$%&*+./:<=>?@\\^|~\-]+)/;
 const upperId = /^[A-Z]+/;
 const lowerId = /^[a-z]+/;
 const regexes =
@@ -264,6 +296,7 @@ const regexes =
     , rightArr
     , leftArr
     , do_
+    , lambda
     , doubleDots
     , numericLiteral
     , eqBinding
@@ -399,8 +432,27 @@ function compile(code) {
         l.forEach(token => {
             l_.push(token);
 
-            if (backtickFlag && !(upperId.test(token) || lowerId.test(token))) {
+            if (
+                backtickFlag &&
+                !(
+                    upperId.test(token) ||
+                    lowerId.test(token) ||
+                    infixFn.test(token) ||
+                    specialFn.test(token)
+                )
+            ) {
                 failWithContext("Illegal use of backtick: `" + token);
+            }
+
+            if (multiwayIfScope <= matchStack.length) {
+                multiwayIfScope = 0;
+            }
+
+            while (
+                doStack.length &&
+                doStack[doStack.length - 1] > matchStack.length
+            ) {
+                doStack.pop();
             }
 
             if (
@@ -430,6 +482,8 @@ function compile(code) {
             } else if (do_.test(token)) {
                 line += "do ";
                 doStack.push(matchStack.length);
+            } else if ("\\" === token) {
+                line += "\\ ";
             } else if (".." === token) {
                 line += ".. ";
             } else if ("=" === token) {
@@ -448,7 +502,6 @@ function compile(code) {
                 }
                 // TODO: rest of the semicolon semantics? (?)
             } else if ("`" === token) {
-                line += "`";
                 backtickFlag = true;
             } else if ("(" === token) {
                 line += "( ";
@@ -540,14 +593,22 @@ function compile(code) {
                 line += "_ ";
             } else if (specialFn.test(token)) {
                 const callName = specialFnMappings[token];
-                line += callName + " ";
+                line +=
+                    backtickFlag ?
+                        "( P.flip " + callName + " ) " :
+                        callName + " ";
+                backtickFlag = false;
                 calls.add(callName);
             } else if (infixFn.test(token)) {
                 const callName =
                     token in infixFnMappings ?
                         infixFnMappings[token] :
                         token;
-                line += callName + " ";
+                line +=
+                    backtickFlag ?
+                        "( P.flip " + callName + " ) " :
+                        callName + " ";
+                backtickFlag = false;
                 calls.add(callName);
             } else if (upperId.test(token)) {
                 const callName = upperIdMappings[token];
@@ -556,28 +617,37 @@ function compile(code) {
                     failWithContext("No such built-in defined: " + token);
                 }
 
-                line += callName + (backtickFlag ? "` " : " ");
+                line +=
+                    (backtickFlag ? "`" : "") +
+                        callName +
+                        (backtickFlag ? "` " : " ");
                 backtickFlag = false;
                 calls.add(callName);
             } else if (lowerId.test(token)) {
-                line += token + " ";
+                line +=
+                    (backtickFlag ? "`" : "") +
+                        token +
+                        (backtickFlag ? "` " : " ");
+                backtickFlag = false;
             }
         });
 
-        const leftOver = matchStack.pop();
-        if (leftOver) {
-            if (leftOver === "(") {
-                failWithContext("Mismatched parentheses.", false);
+        let leftOver = matchStack.pop();
+        while (leftOver) {
+            switch (leftOver) {
+                case "(":
+                    line += ") ";
+                    break;
+                case "[":
+                    line += "] ";
+                    break;
+                default:
+                    line += ") ";
+                    if (awaitCaseOf > matchStack.filter(m => m === "⟨").length) {
+                        failWithContext("Incorrect case block syntax.");
+                    }
             }
-            if (leftOver === "{") {
-                failWithContext("Mismatched let blocks.", false);
-            }
-            if (leftOver === "[") {
-                failWithContext("Mismatched square brackets.", false);
-            }
-            if (leftOver === "⟨") {
-                failWithContext("Mismatched case blocks.", false);
-            }
+            leftOver = matchStack.pop();
         }
 
         if (awaitCaseOf) {
@@ -658,6 +728,9 @@ function compile(code) {
 
     const imported = new Set();
     calls.forEach(call => {
+        if (call[0] === '`') {
+            call = call.slice(1);
+        }
         const qual = call.split(".").shift();
         if (!qual || imported.has(qual)) {
             return;
