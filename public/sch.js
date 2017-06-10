@@ -263,7 +263,7 @@ const rightArr = /^→/;
 const leftArr = /^←/;
 const do_ = /^⟥/;
 const lambda = /^\\(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
-const doubleDots = /^\.\.(?=[^!#\$%&*+./:<=>?@\\^|~-])/;
+const doubleDots = /^\.\.(?=[^!#\$%&*+./:<=>?@\\^|~-]|$)/;
 const numericLiteral = /^[0-9]*\.?[0-9]+/;
 const eqBinding = /^=(?=[^≪!#\$%&*+./:<=>?@\\^|~-])/;
 const semicolon = /^;/;
@@ -381,7 +381,7 @@ function compile(code) {
     const lineArray = [];
     const calls = new Set();
     const nakeds = [];
-    const range = /\[(.+?)\.\.(.+?)\]/;
+    const range = /\[(.*?\S+?\s+?)\.\.(\s+?\S+?.*?)\]/;
     function makeId(i) {
         return (i >= 26 ? makeId((i / 26 >> 0) - 1) : "") +
             "abcdefghijklmnopqrstuvwxyz"[i % 26 >> 0] +
@@ -730,14 +730,78 @@ function compile(code) {
             }
             rangeIndex += rangeMatch.index + 1;
 
-            const repl =
-                "( enumFromThrough " +
-                    rangeMatch[1].trim() +
-                    " " +
-                    rangeMatch[2].trim() +
-                    " )";
-            line = line.replace(rangeMatch[0], repl);
-            calls.add("enumFromThrough");
+            const rangePart1 = rangeMatch[1].trim();
+            const matchStack = [];
+            let multiwayIfScope = 0;
+            let rangePartCons = rangePart1.slice(0);
+            const tokens = [];
+            let isFromThrough = true;
+            while (rangePartCons.length > 0 && isFromThrough) {
+                let matched = false;
+
+                for (let i = 0; i < regexes.length; ++i) {
+                    const regex = regexes[i];
+                    const match = regex.exec(rangePartCons);
+                    if (match === null) {
+                        continue;
+                    }
+
+                    const matchStr = match[0];
+                    rangePartCons = rangePartCons.slice(matchStr.length);
+
+                    if (~matchStr.indexOf("\n")) {
+                        failWithContext("wat (LF): " + rangePart1, false);
+                    } else if (!spacing.test(matchStr)) {
+                        if (rightArr.test(matchStr)) {
+                            if (
+                                multiwayIfScope > matchStack.length &&
+                                tokens[tokens.length - 1] === "|"
+                            ) {
+                                multiwayIfScope = 0;
+                            }
+                        } else if (~["(", "{", "[", "⟨"].indexOf(matchStr)) {
+                            matchStack.push(matchStr);
+                        } else if (~[")", "}", "]", "⟩"].indexOf(matchStr)) {
+                            matchStack.pop();
+                        } else if (comma.test(matchStr)) {
+                            if (!multiwayIfScope && !matchStack.length) {
+                                isFromThrough = false;
+                                matched = true;
+                                break;
+                            }
+                        } else if ("|" === matchStr) {
+                            if (!multiwayIfScope) {
+                                multiwayIfScope = matchStack.length + 1;
+                            }
+                        }
+                        tokens.push(matchStr);
+                    }
+
+                    matched = true;
+                    break;
+                }
+
+                if (!matched) {
+                    failWithContext(
+                        "Magically managed to fail tokenization after the " +
+                            "first pass while parsing the first part of " +
+                            "a range:\n" +
+                            rangePartCons,
+                        false
+                    );
+                }
+            }
+
+            if (isFromThrough) {
+                const repl =
+                    "( enumFromThrough ( " +
+                        rangePart1 +
+                        " ) ( " +
+                        rangeMatch[2].trim() +
+                        " ) )";
+                line = line.replace(rangeMatch[0], repl);
+                calls.add("enumFromThrough");
+            }
         }
 
         if (naked) {
