@@ -387,6 +387,56 @@ function compile(code) {
             "abcdefghijklmnopqrstuvwxyz"[i % 26 >> 0] +
             "9";
     }
+    function trimRange(rangeMatch) {
+        if (!rangeMatch) {
+            return null;
+        }
+
+        const leftHalf = rangeMatch[1].split("");
+        const bracketStack1 = [0];
+        leftHalf.forEach((chr, i) => {
+            switch (chr) {
+                case "[":
+                    bracketStack1.push(i + 1);
+                    break;
+                case "]":
+                    bracketStack1.pop();
+            }
+        });
+        const leftIndex = bracketStack1.pop();
+        if (leftIndex === undefined) {
+            failWithContext("The range regexp is wrong!", false);
+        }
+
+        const bracketStack2 = ["["];
+        const rightHalf = rangeMatch[2].split("");
+        let rightHalfAccu = "";
+        let closed = false;
+        for (let _ = 0; _ < rightHalf.length; ++_) {
+            const chr = rightHalf[_];
+            switch (chr) {
+                case "[":
+                    bracketStack2.push("[");
+                    break;
+                case "]":
+                    bracketStack2.pop();
+                    if (!bracketStack2.length) {
+                        closed = true;
+                    }
+            }
+            if (closed) {
+                break;
+            }
+            rightHalfAccu += chr;
+        }
+
+        return {
+            0: "[" + rangeMatch[1].slice(leftIndex) + ".." + rightHalfAccu + "]",
+            1: rangeMatch[1].slice(leftIndex),
+            2: rightHalfAccu,
+            index: leftIndex
+        };
+    }
     const openComment = /({-|--[^\n]*)/;
 
     tokens.forEach(l => {
@@ -724,7 +774,7 @@ function compile(code) {
 
         let rangeIndex = 0;
         for (;;) {
-            const rangeMatch = range.exec(line.slice(rangeIndex));
+            const rangeMatch = trimRange(range.exec(line.slice(rangeIndex)));
             if (!rangeMatch) {
                 break;
             }
