@@ -1,0 +1,63 @@
+<div class="modal fade" id="save-snippet-modal" tabindex="-1" role="dialog" aria-labelledby="save-snippet-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="save-snippet-modal-label">Save code fragment</h4>
+
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="submitter-name" class="form-control-label">
+              Your name
+
+              <br />
+
+              <small class="text-muted">(Maximum 24 characters)</small>
+            </label>
+
+            <input type="text" maxlength="24" class="form-control" id="submitter-name">
+          </div>
+
+          <div class="form-group">
+            <label for="fragment-name" class="form-control-label">
+              Name of fragment
+
+              <br />
+
+              <small class="text-muted">(Maximum 36 characters)</small>
+            </label>
+
+            <input type="text" maxlength="36" class="form-control" id="fragment-name">
+          </div>
+
+          <div class="form-group">
+            <label for="description-text" class="form-control-label">
+              Description
+
+              <br />
+
+              <small class="text-muted">Make sure to include the problem that the code is trying to solve, and maybe some thoughts about how it works. (Maximum 1000 characters)</small>
+            </label>
+
+            <textarea class="form-control" maxlength="1000" id="description-text"></textarea>
+          </div>
+        </form>
+
+        <p id="character-count" class="text-muted">
+          0/1000
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+        <button type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>

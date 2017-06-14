@@ -99,6 +99,10 @@ pre {
     border: 2px solid rgba(192, 192, 192, 0.3);
 }
 
+#character-count {
+    text-align: right;
+}
+
 /**************** Code highlighting ****************/
 
 .charLiteral {
