@@ -2,18 +2,46 @@
 
 /******** Imports ********/
 const babel         = require("babel-core");
+const bodyParser    = require("body-parser");
 const codeHighlight = require("./codeHighlight");
 const exphbs        = require("express-handlebars");
 const express       = require("express");
 const fs            = require("fs");
 const markdown      = require("markdown").markdown;
+const MongoClient   = require("mongodb").MongoClient;
 const path          = require("path");
 
 
 /******** Setup ********/
 const app = express();
+const hbs = exphbs.create({
+    helpers: {
+        multThree: i => i > 2 && i % 3 === 0,
+        highlight: txt => codeHighlight.parse(txt)
+    }
+});
 const port = +process.env.PORT ? +process.env.PORT : 3000;
 const babelCache = {};
+
+const mongoHost = process.env.MONGO_HOST;
+const mongoPort = +process.env.MONGO_PORT ? +process.env.MONGO_PORT : 27017;
+const mongoUser = process.env.MONGO_USER;
+const mongoPassword = process.env.MONGO_PASSWORD;
+const mongoDbName = process.env.MONGO_DB;
+const mongoUrl =
+    "mongodb://" +
+        mongoUser +
+        ":" +
+        mongoPassword +
+        "@" +
+        mongoHost +
+        ":" +
+        mongoPort +
+        "/" +
+        mongoDbName;
+let mongoDb;
+
+console.log("== MongoDB URL:", mongoUrl);
 
 /******** Pre-processing for converting Markdown to docs ********/
 const htmlEntities =
@@ -56,8 +84,8 @@ function highlightCodeBlock(match, p1) {
     try {
         const highlighted =
             "<code>" +
-            codeHighlight.parse(unescapeHtmlEntities(p1)) +
-            "</code>";
+                codeHighlight.parse(unescapeHtmlEntities(p1)) +
+                "</code>";
         return highlighted.replace(allLineStarts, "    ");
     } catch (e) {
         return match.replace(allLineStarts, "    ");
@@ -186,8 +214,10 @@ const exoticCharRows = exoticChars.reduce(
 
 
 /******** Request handling with middleware ********/
-app.engine("handlebars", exphbs());
+app.engine("handlebars", hbs.engine);
 app.set("view engine", "handlebars");
+
+app.use(bodyParser.json());
 
 app.get("/docs", (req, res) => {
     const active = 0;
@@ -214,9 +244,9 @@ app.get("/docs", (req, res) => {
     });
 });
 
-app.get("/docs/*", (req, res) => {
-    const active = +req.url.split("/").filter(s => s).pop();
-    if (isNaN(active) || active < 0 || active >= docContents.length) {
+app.get("/docs/:docNum", (req, res) => {
+    const active = +req.params.docNum;
+    if (!(active in docContents)) {
         res.status(404).render("404Page");
         return;
     }
@@ -251,8 +281,33 @@ app.get("/editor", (req, res) => {
     res.render("editor", {
         miniTopRow: true,
         miniTopRowOffset: 1,
-        exoticCharRows
+        exoticCharRows,
+        code: ""
     });
+});
+
+app.post("/editor/:snippet/addSnippet", (req, res) => {
+    if (req.body && req.body.url) {
+        const collection = mongoDb.collection("snippets");
+        const photo = {
+            url: req.body.url,
+            caption: req.body.caption
+        };
+        collection.updateOne(
+            { personid: req.params.person },
+            { $push: { photos: photo } },
+            (err, result) => {
+                if (err) {
+                    console.log("== Error inserting photo for person (" + req.params.person + ") into database:", err);
+                    res.status(500).send("Error inserting photo into database: " + err);
+                } else {
+                    res.status(200).send();
+                }
+            }
+        );
+    } else {
+        res.status(400).send("Code snippet must have a URL.");
+    }
 });
 
 app.get("/sch", (req, res) => {
@@ -269,6 +324,50 @@ app.get("/download", (req, res) => {
     res.render("download", {
         miniTopRow: true,
         miniTopRowOffset: 1
+    });
+});
+
+app.get("/snippets", (req, res) => {
+    const collection = mongoDb.collection("snippets");
+
+    collection.find({}).toArray((err, snippetData) => {
+        if (err) {
+            res.status(500).send("Error fetching code snippets from DB.");
+        } else {
+            res.render("snippets", {
+                miniTopRow: true,
+                miniTopRowOffset: 1,
+                snippetData: snippetData
+            });
+        }
+    });
+});
+
+app.get("/snippets/:snippet", (req, res, next) => {
+    const snippet = req.params.snippet;
+    const collection = mongoDb.collection("snippets");
+
+    collection.find({ snippetid: snippet }).toArray((err, snippetsData) => {
+        if (err) {
+            console.log(
+                "== Error fetching code snippet (" +
+                    snippet +
+                    ") from database:",
+                err
+            );
+            res.status(500).send("Error fetching code snippet from DB.");
+        } else if (snippetsData.length < 1) {
+            next();
+        } else {
+            const snippetData = snippetsData[0];
+
+            res.render("editor", {
+                miniTopRow: true,
+                miniTopRowOffset: 1,
+                exoticCharRows,
+                code: snippetData.code
+            });
+        }
     });
 });
 
@@ -308,6 +407,11 @@ app.get("*", (req, res) => {
 });
 
 /******** Finally, start listening ********/
-app.listen(port, () => {
-    console.log("== Server listening on port", port);
+MongoClient.connect(mongoUrl, (err, db) => {
+    if (err) {
+        throw err;
+    }
+
+    mongoDb = db;
+    app.listen(port, () => console.log("== Server listening on port", port));
 });

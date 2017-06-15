@@ -18,9 +18,11 @@
   "homepage": "https://github.com/OSU-CS290-Sp2017/final-project-schonfinkel#readme",
   "dependencies": {
     "babel-preset-env": "^1.5.2",
+    "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "express-handlebars": "^3.0.0",
-    "markdown": "^0.5.0"
+    "markdown": "^0.5.0",
+    "mongodb": "^2.2.28"
   },
   "devDependencies": {
     "babel-core": "^6.25.0"

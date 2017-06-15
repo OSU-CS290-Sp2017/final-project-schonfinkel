@@ -11,3 +11,5 @@ Libraries used:
 * [Express Handlebars v3.0.0](https://www.npmjs.com/package/express-handlebars)
 * [Babel compiler core v6.25.0](https://www.npmjs.com/package/babel-core)
 * [Babel preset "env" v1.5.2](https://www.npmjs.com/package/babel-preset-env)
+* [mongodb v2.2.28](https://www.npmjs.com/package/mongodb)
+* [body-parser v1.17.2](https://www.npmjs.com/package/body-parser)

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  {{> head}}
+
+  <body onload="smartquotes();">
+    <div class="container">
+      {{> topRow}}
+
+      <div class="row">
+        <div class="col-md-12">
+          <h1 class="text-center">Schönfinkel Snippets</h1>
+
+          <br />
+
+          <h2 class="text-center text-muted">As written by other users</h2>
+        </div>
+      </div>
+
+      <div class="row">
+        {{#each snippetData}}
+          {{#if multThree @index}}
+            </div>
+
+            <div class="row">
+          {{/if}}
+
+          {{> snippet}}
+        {{/each}}
+      </div>
+
+      {{> footer}}
+    </div>
+
+    {{> jsFooter}}
+  </body>
+</html>
