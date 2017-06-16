@@ -278,14 +278,14 @@ app.get("/docs/:docNum", (req, res) => {
     });
 });
 
-app.get("/editor", (req, res) => {
+app.get("/editor", (req, res) =>
     res.render("editor", {
         miniTopRow: true,
         miniTopRowOffset: 1,
         exoticCharRows,
         code: ""
-    });
-});
+    })
+);
 
 app.get("/editor/:snippetId", (req, res) => {
     const snippetId = req.params.snippetId;
@@ -407,12 +407,12 @@ app.get("/sch", (req, res) => {
     fileStream.pipe(res);
 });
 
-app.get("/download", (req, res) => {
+app.get("/download", (req, res) =>
     res.render("download", {
         miniTopRow: true,
         miniTopRowOffset: 1
-    });
-});
+    })
+);
 
 app.get("/snippets", (req, res) => {
     const collection = mongoDb.collection("snippets");
@@ -489,9 +489,7 @@ app.get(/\/[0-9a-zA-Z_\-]+\.js\/?/, (req, res) => {
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("*", (req, res) => {
-    res.status(404).render("404Page");
-});
+app.get("*", (req, res) => res.status(404).render("404Page"));
 
 /******** Finally, start listening ********/
 MongoClient.connect(mongoUrl, (err, db) => {
