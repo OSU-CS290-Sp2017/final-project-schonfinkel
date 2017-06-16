@@ -27,6 +27,11 @@ a {
     background-color: rgba(192, 192, 192, 0.2);
 }
 
+.snippet-pre-gallery {
+    border-radius: 5px;
+    padding: 1rem 2rem 1rem 2rem;
+}
+
 pre {
     white-space: pre !important;
 }
@@ -101,6 +106,19 @@ pre {
 
 #character-count {
     text-align: right;
+}
+
+.author {
+    color: rgb(118, 18, 232);
+    font-weight: 900;
+}
+
+.desc-container {
+    font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 14px;
+    overflow: visible;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 /**************** Code highlighting ****************/

@@ -1,13 +1,33 @@
-<div class="card">
-  <div class="card-header">
-    &lt;Title&gt;
-  </div>
-  <div class="card-block">
-    <h5 class="card-title">&lt;Author&gt;</h4>
-    <p class="card-text">
-      <pre class="snippet-pre"><code>
-    {{{highlight code}}}</code></pre>
-    </p>
-    <a href="#" class="btn btn-primary">Open in editor</a>
+<div class="col-md-4">
+  <div class="card">
+    <div class="card-header">
+      {{title}}
+    </div>
+
+    <div class="card-block">
+      <h5 class="card-title">Created by <span class="author">{{author}}</span></h4>
+
+      <p class="card-text">
+<pre class="snippet-pre snippet-pre-gallery"><code>{{{highlight code}}}</code></pre>
+      </p>
+
+      <button class="btn btn-secondary btn-block" type="button" data-toggle="collapse" data-target="#desc-collapse-{{_id}}" aria-expanded="false" aria-controls="collapseExample">
+        Description
+      </button>
+
+      <div class="collapse" id="desc-collapse-{{_id}}">
+        <div class="card card-block desc-container">
+          {{#each (lines description)}}
+            {{this}}
+
+            &nbsp;<br />
+          {{/each}}
+        </div>
+      </div>
+
+      <br />
+
+      <a href="/editor/{{_id}}" class="btn btn-primary btn-block">Open in editor</a>
+    </div>
   </div>
 </div>

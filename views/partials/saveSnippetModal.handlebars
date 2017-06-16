@@ -10,6 +10,8 @@
       </div>
 
       <div class="modal-body">
+        <div id="modal-alert" class="alert hide" role="alert"></div>
+
         <form>
           <div class="form-group">
             <label for="submitter-name" class="form-control-label">
@@ -41,7 +43,7 @@
 
               <br />
 
-              <small class="text-muted">Make sure to include the problem that the code is trying to solve, and maybe some thoughts about how it works. (Maximum 1000 characters)</small>
+              <small class="text-muted">Make sure to include the problem that the code is trying to solve, and maybe some type signatures or thoughts about how it works. (Maximum 1000 characters)</small>
             </label>
 
             <textarea class="form-control" maxlength="1000" id="description-text"></textarea>
@@ -54,9 +56,9 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button id="modal-close" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 
-        <button type="button" class="btn btn-primary">Save</button>
+        <button id="save-snippet-button" type="button" class="btn btn-primary">Save</button>
       </div>
     </div>
   </div>

@@ -9,22 +9,24 @@
       <div class="row">
         <div class="col-md-12">
           <h1 class="text-center">Schönfinkel Snippets</h1>
-
-          <br />
-
-          <h2 class="text-center text-muted">As written by other users</h2>
         </div>
       </div>
 
       <div class="row">
+        <div class="col-md-12">
+          <h2 class="text-center text-muted">As written by other users</h2>
+        </div>
+      </div>
+
+      <div class="row" style="padding-top: 2rem; padding-bottom: 2rem;">
         {{#each snippetData}}
-          {{#if multThree @index}}
+          {{#if (multThree @index)}}
             </div>
 
             <div class="row">
           {{/if}}
 
-          {{> snippet}}
+{{> snippet}}
         {{/each}}
       </div>
 

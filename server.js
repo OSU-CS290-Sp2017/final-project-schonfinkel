@@ -1,15 +1,15 @@
 "use strict";
 
 /******** Imports ********/
-const babel         = require("babel-core");
-const bodyParser    = require("body-parser");
-const codeHighlight = require("./codeHighlight");
-const exphbs        = require("express-handlebars");
-const express       = require("express");
-const fs            = require("fs");
-const markdown      = require("markdown").markdown;
-const MongoClient   = require("mongodb").MongoClient;
-const path          = require("path");
+const babel                   = require("babel-core");
+const bodyParser              = require("body-parser");
+const codeHighlight           = require("./codeHighlight");
+const exphbs                  = require("express-handlebars");
+const express                 = require("express");
+const fs                      = require("fs");
+const markdown                = require("markdown").markdown;
+const {MongoClient, ObjectId} = require("mongodb");
+const path                    = require("path");
 
 
 /******** Setup ********/
@@ -17,7 +17,8 @@ const app = express();
 const hbs = exphbs.create({
     helpers: {
         multThree: i => i > 2 && i % 3 === 0,
-        highlight: txt => codeHighlight.parse(txt)
+        highlight: txt => codeHighlight.parse(txt),
+        lines: s => s.split(/\r?\n/gm)
     }
 });
 const port = +process.env.PORT ? +process.env.PORT : 3000;
@@ -175,7 +176,7 @@ const codeSnippetSelection = [
     "f b=[|i>j→-2|i<j→1|→0¦(i,j)←b\n-- :: Integral i => [(i, i)] -> [i]",
     "f=(Δ1).L -- get length and subtract 1\ng=f[8..1 -- g=7",
     '("!-",,"-!")↵[0..2\n-- [("!-", 0, "-!"), ("!-", 1, "-!"), ("!-", 2, "-!")]',
-    "Σ$(Nn/)↵[1..Nn\n-- Sum harmonic series for\n-- n = `command-line argument` :: String",
+    "Σ$(Nb/)↵[1..Nb\n-- Sum harmonic series, where\n-- `b` is the first command-line argument\n-- [of type String]",
     "r=[0..9\n['|':(r≫=\\i→[|(iΔb,jΔc)∈[1,2,0,1,2]⊠[0,1,2,2,2]→'*'|→'_','|'])¦j←r\n-- Emit a 'Game of Life' glider on a 10x10 grid",
     "n=[0..7\nPS⤔[[H$((i,j)∈)⊙V(\\s_→A(\\(z,w)→z∈n&&w∈n)$(\\(a,b)→F(\\c d→(a+c,b+d))[1,1,-1,-1,-2,-2,2,2][2,-2,2,-2,1,-1,1,-1])=≪s)[(Nb,Nc)]n¡0+48¦j←n]¦i←n\n-- Full program printing map of number of moves required\n-- by a knight to arrive at all places on the chessboard\n-- starting from the coordinates supplied as arguments"
 ];
@@ -286,27 +287,113 @@ app.get("/editor", (req, res) => {
     });
 });
 
-app.post("/editor/:snippet/addSnippet", (req, res) => {
-    if (req.body && req.body.url) {
-        const collection = mongoDb.collection("snippets");
-        const photo = {
-            url: req.body.url,
-            caption: req.body.caption
-        };
-        collection.updateOne(
-            { personid: req.params.person },
-            { $push: { photos: photo } },
-            (err, result) => {
+app.get("/editor/:snippetId", (req, res) => {
+    const snippetId = req.params.snippetId;
+    const collection = mongoDb.collection("snippets");
+
+    const _id = (() => {
+        try {
+            return ObjectId(snippetId);
+        } catch (e) {
+            return;
+        }
+    })();
+
+    if (!_id) {
+        res.render("editor", {
+            miniTopRow: true,
+            miniTopRowOffset: 1,
+            exoticCharRows,
+            code: ""
+        });
+        return;
+    }
+
+    collection
+        .find({ _id })
+        .next((err, result) => {
+            if (err || !result) {
+                res.render("editor", {
+                    miniTopRow: true,
+                    miniTopRowOffset: 1,
+                    exoticCharRows,
+                    code: ""
+                });
                 if (err) {
-                    console.log("== Error inserting photo for person (" + req.params.person + ") into database:", err);
-                    res.status(500).send("Error inserting photo into database: " + err);
-                } else {
-                    res.status(200).send();
+                    console.log(err);
                 }
+            } else {
+                res.render("editor", {
+                    miniTopRow: true,
+                    miniTopRowOffset: 1,
+                    exoticCharRows,
+                    code: result.code
+                });
             }
-        );
+        });
+});
+
+app.post("/editor/addSnippet", (req, res) => {
+    if (
+        req.body &&
+        req.body.author.trim() &&
+        req.body.code &&
+        req.body.description.trim() &&
+        req.body.title.trim()
+    ) {
+        if (req.body.author.length > 24) {
+            res.status(400).send(
+                "Author of snippet must not exceed 24 characters."
+            );
+            return;
+        }
+        if (req.body.code.length > 5000) {
+            res.status(400).send(
+                "Code snippet must not exceed 5000 characters."
+            );
+            return;
+        }
+        if (req.body.description.length > 1000) {
+            res.status(400).send(
+                "Description of snippet must not exceed 1000 characters."
+            );
+            return;
+        }
+        if (req.body.title.length > 36) {
+            res.status(400).send(
+                "Title of snippet must not exceed 36 characters."
+            );
+            return;
+        }
+
+        const collection = mongoDb.collection("snippets");
+        const snippet = {
+            author: req.body.author.trim(),
+            code: req.body.code,
+            description: req.body.description.trim(),
+            title: req.body.title.trim()
+        };
+
+        collection.insertOne(snippet, err => {
+            if (err) {
+                console.log(
+                    "== Error storing code snippet (" +
+                        JSON.stringify(snippet) +
+                        ") into database:",
+                    err
+                );
+                res.status(500).send(
+                    "Error inserting code snippet into database: " +
+                        err
+                );
+            } else {
+                res.status(200).send();
+            }
+        });
     } else {
-        res.status(400).send("Code snippet must have a URL.");
+        res.status(400).send(
+            "Code snippet must have some code, a title, a description, and an author."
+        );
     }
 });
 
@@ -337,7 +424,7 @@ app.get("/snippets", (req, res) => {
             res.render("snippets", {
                 miniTopRow: true,
                 miniTopRowOffset: 1,
-                snippetData: snippetData
+                snippetData
             });
         }
     });
