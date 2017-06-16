@@ -121,6 +121,10 @@ pre {
     overflow-wrap: normal;
 }
 
+.snippet-card {
+    margin: 1.5rem 0 1.5rem 0;
+}
+
 /**************** Code highlighting ****************/
 
 .charLiteral {
